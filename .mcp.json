@@ -1,8 +1,8 @@
 {
   "mcpServers": {
     "codex": {
-      "command": "codex",
-      "args": ["mcp-server"],
+      "command": "sh",
+      "args": ["-c", "[ -f .env ] && { set -a; . ./.env; }; exec codex mcp-server"],
       "env": {}
     }
   }
