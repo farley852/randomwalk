@@ -1,7 +1,7 @@
 import { encode } from "modern-gif";
 import workerUrl from "modern-gif/worker?url";
 import type { WalkState, RenderOptions } from "../simulation/types";
-import { computeHeatmapGrid } from "../simulation/heatmap";
+import { computeHeatmapGrid, computeMultiWalkHeatmapGrid } from "../simulation/heatmap";
 import type { WalkRenderer } from "../rendering/renderer";
 
 /**
@@ -20,14 +20,21 @@ export async function exportGif(
   // Aim for ~100 frames max to keep GIF size manageable
   const frameSkip = Math.max(1, Math.floor(totalSteps / 100));
   const delay = 50; // ms per frame
-  const cellSize = primaryWalk.params.stepLength * 2;
+  const cellSize = (options?.grid.cellSize ?? primaryWalk.params.stepLength) * 2;
+
+  const useAllWalksHeatmap = options?.heatmap.allWalks && walks.length > 1;
+
+  function computeHeatmapForStep(step: number) {
+    if (!options?.heatmap.enabled) return undefined;
+    return useAllWalksHeatmap
+      ? computeMultiWalkHeatmapGrid(walks, cellSize, step)
+      : computeHeatmapGrid(primaryWalk, cellSize, step);
+  }
 
   const frames: { data: ImageData; delay: number }[] = [];
 
   for (let step = 0; step <= totalSteps; step += frameSkip) {
-    const heatmapGrid = options?.heatmap.enabled
-      ? computeHeatmapGrid(primaryWalk, cellSize, step)
-      : undefined;
+    const heatmapGrid = computeHeatmapForStep(step);
     if (walks.length === 1) {
       renderer.drawUpToStep(primaryWalk, step, options, heatmapGrid);
     } else {
@@ -38,9 +45,7 @@ export async function exportGif(
 
   // Always include the final frame
   if (totalSteps % frameSkip !== 0) {
-    const heatmapGrid = options?.heatmap.enabled
-      ? computeHeatmapGrid(primaryWalk, cellSize, totalSteps)
-      : undefined;
+    const heatmapGrid = computeHeatmapForStep(totalSteps);
     if (walks.length === 1) {
       renderer.drawUpToStep(primaryWalk, totalSteps, options, heatmapGrid);
     } else {
