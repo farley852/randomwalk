@@ -9,16 +9,29 @@ export interface AnalyticsPanel {
 
 type TabId = "msd" | "step-dist" | "end-dist";
 
+const NOOP_PANEL: AnalyticsPanel = {
+  update() {},
+  clear() {},
+  isVisible() { return false; },
+};
+
 export function initAnalyticsPanel(): AnalyticsPanel {
-  const panel = document.getElementById("analytics-panel")!;
-  const toggleBtn = document.getElementById("analytics-toggle")!;
+  const panel = document.getElementById("analytics-panel");
+  const toggleBtn = document.getElementById("analytics-toggle");
+  if (!panel || !toggleBtn) return NOOP_PANEL;
+
   const tabs = panel.querySelectorAll<HTMLButtonElement>(".analytics-tab");
+  const msdCanvas = document.getElementById("chart-msd") as HTMLCanvasElement | null;
+  const stepCanvas = document.getElementById("chart-step-dist") as HTMLCanvasElement | null;
+  const endCanvas = document.getElementById("chart-end-dist") as HTMLCanvasElement | null;
+  const exponentEl = document.getElementById("diffusion-exponent-value");
+  if (!msdCanvas || !stepCanvas || !endCanvas || !exponentEl) return NOOP_PANEL;
+
   const canvases: Record<TabId, HTMLCanvasElement> = {
-    msd: document.getElementById("chart-msd") as HTMLCanvasElement,
-    "step-dist": document.getElementById("chart-step-dist") as HTMLCanvasElement,
-    "end-dist": document.getElementById("chart-end-dist") as HTMLCanvasElement,
+    msd: msdCanvas,
+    "step-dist": stepCanvas,
+    "end-dist": endCanvas,
   };
-  const exponentEl = document.getElementById("diffusion-exponent-value")!;
 
   let activeTab: TabId = "msd";
   let collapsed = true;
