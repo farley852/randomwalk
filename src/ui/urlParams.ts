@@ -4,7 +4,7 @@ const DEFAULTS: WalkParams = { seed: 42, steps: 500, stepLength: 5, walkType: "i
 
 const RANGES = {
   seed: { min: 1, max: 9999 },
-  steps: { min: 10, max: 5000 },
+  steps: { min: 10, max: 50000 },
   stepLength: { min: 1, max: 20 },
   levyAlpha: { min: 1.0, max: 3.0 },
 } as const;
