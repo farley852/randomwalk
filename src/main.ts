@@ -1,6 +1,6 @@
 import { generateWalk } from "./simulation/walk";
 import type { WalkState, PlaybackState, RenderOptions } from "./simulation/types";
-import { computeHeatmapGrid, extendHeatmapGrid, type HeatmapGrid } from "./simulation/heatmap";
+import { computeHeatmapGrid, computeMultiWalkHeatmapGrid, extendHeatmapGrid, type HeatmapGrid } from "./simulation/heatmap";
 import { WalkRenderer } from "./rendering/renderer";
 import { CameraController } from "./rendering/cameraController";
 import type { ViewTransform } from "./rendering/camera";
@@ -43,7 +43,7 @@ const playback: PlaybackState = { currentStep: 0, playing: false, drawSpeed: 5 }
 let animFrameId = 0;
 
 const renderOptions: RenderOptions = {
-  heatmap: { enabled: false, opacity: 0.5 },
+  heatmap: { enabled: false, opacity: 0.5, allWalks: false },
   trailFade: { enabled: false, trailLength: 100 },
   grid: { enabled: false, showAxes: true },
 };
@@ -96,14 +96,21 @@ function redrawCurrent(): void {
 function updateHeatmapForStep(step: number): void {
   if (!renderOptions.heatmap.enabled) return;
 
-  const primaryWalk = walks[0];
-
-  if (!heatmapGrid || step < heatmapLastStep) {
-    heatmapGrid = computeHeatmapGrid(primaryWalk, getCellSize(), step);
-    heatmapLastStep = step;
-  } else if (step > heatmapLastStep) {
-    heatmapGrid = extendHeatmapGrid(heatmapGrid, primaryWalk, heatmapLastStep, step, getCellSize());
-    heatmapLastStep = step;
+  if (renderOptions.heatmap.allWalks && walks.length > 1) {
+    // All-walks mode: always recompute from scratch (no incremental for multi-walk)
+    if (!heatmapGrid || step !== heatmapLastStep) {
+      heatmapGrid = computeMultiWalkHeatmapGrid(walks, getCellSize(), step);
+      heatmapLastStep = step;
+    }
+  } else {
+    const primaryWalk = walks[0];
+    if (!heatmapGrid || step < heatmapLastStep) {
+      heatmapGrid = computeHeatmapGrid(primaryWalk, getCellSize(), step);
+      heatmapLastStep = step;
+    } else if (step > heatmapLastStep) {
+      heatmapGrid = extendHeatmapGrid(heatmapGrid, primaryWalk, heatmapLastStep, step, getCellSize());
+      heatmapLastStep = step;
+    }
   }
 }
 
@@ -188,6 +195,12 @@ const ui = initControls({
 
   onHeatmapToggle(enabled) {
     renderOptions.heatmap.enabled = enabled;
+    resetHeatmapCache();
+    redrawCurrent();
+  },
+
+  onHeatmapAllWalksToggle(enabled) {
+    renderOptions.heatmap.allWalks = enabled;
     resetHeatmapCache();
     redrawCurrent();
   },

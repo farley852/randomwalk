@@ -25,7 +25,7 @@ export interface PlaybackState {
 }
 
 export interface RenderOptions {
-  heatmap: { enabled: boolean; opacity: number };
+  heatmap: { enabled: boolean; opacity: number; allWalks: boolean };
   trailFade: { enabled: boolean; trailLength: number };
   grid: { enabled: boolean; showAxes: boolean };
 }

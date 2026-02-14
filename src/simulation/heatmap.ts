@@ -1,4 +1,4 @@
-import type { WalkState } from "./types";
+import type { Point, WalkState } from "./types";
 
 export interface HeatmapGrid {
   grid: Uint16Array;
@@ -92,17 +92,14 @@ function rasterizeSegment(
   }
 }
 
-function computeBoundsAndGrid(
-  walk: WalkState,
+function computeBoundsFromPoints(
+  points: Point[],
   cellSize: number,
 ): { originX: number; originY: number; cols: number; rows: number } {
-  const { points } = walk;
-
   let minX = Infinity,
     maxX = -Infinity,
     minY = Infinity,
     maxY = -Infinity;
-  // Use ALL points for stable grid dimensions (matches camera behavior)
   for (const p of points) {
     if (p.x < minX) minX = p.x;
     if (p.x > maxX) maxX = p.x;
@@ -123,6 +120,42 @@ function computeBoundsAndGrid(
   return { originX: minX, originY: minY, cols: Math.max(1, cols), rows: Math.max(1, rows) };
 }
 
+function computeBoundsAndGrid(
+  walk: WalkState,
+  cellSize: number,
+): { originX: number; originY: number; cols: number; rows: number } {
+  return computeBoundsFromPoints(walk.points, cellSize);
+}
+
+function findMaxCount(grid: Uint16Array): number {
+  let max = 0;
+  for (let j = 0; j < grid.length; j++) {
+    if (grid[j] > max) max = grid[j];
+  }
+  return max;
+}
+
+function rasterizeWalkSegments(
+  points: Point[],
+  fromStep: number,
+  toStep: number,
+  originX: number,
+  originY: number,
+  cellSize: number,
+  cols: number,
+  rows: number,
+  grid: Uint16Array,
+): void {
+  const end = Math.min(toStep, points.length - 1);
+  for (let i = fromStep; i < end; i++) {
+    rasterizeSegment(
+      points[i].x, points[i].y,
+      points[i + 1].x, points[i + 1].y,
+      originX, originY, cellSize, cols, rows, grid,
+    );
+  }
+}
+
 /**
  * Compute heatmap from scratch up to a given step.
  * Used for GIF export and initial computation.
@@ -134,28 +167,9 @@ export function computeHeatmapGrid(
 ): HeatmapGrid {
   const { originX, originY, cols, rows } = computeBoundsAndGrid(walk, cellSize);
   const grid = new Uint16Array(cols * rows);
-  const { points } = walk;
-  const end = Math.min(upToStep, points.length - 1);
 
-  let maxCount = 0;
-  for (let i = 0; i < end; i++) {
-    rasterizeSegment(
-      points[i].x,
-      points[i].y,
-      points[i + 1].x,
-      points[i + 1].y,
-      originX,
-      originY,
-      cellSize,
-      cols,
-      rows,
-      grid,
-    );
-  }
-
-  for (let j = 0; j < grid.length; j++) {
-    if (grid[j] > maxCount) maxCount = grid[j];
-  }
+  rasterizeWalkSegments(walk.points, 0, upToStep, originX, originY, cellSize, cols, rows, grid);
+  const maxCount = findMaxCount(grid);
 
   return { grid, maxCount, originX, originY, cellSize, cols, rows };
 }
@@ -172,28 +186,30 @@ export function extendHeatmapGrid(
   cellSize: number,
 ): HeatmapGrid {
   const { grid, cols, rows, originX, originY } = prev;
-  const { points } = walk;
-  const end = Math.min(toStep, points.length - 1);
 
-  let maxCount = prev.maxCount;
-  for (let i = fromStep; i < end; i++) {
-    rasterizeSegment(
-      points[i].x,
-      points[i].y,
-      points[i + 1].x,
-      points[i + 1].y,
-      originX,
-      originY,
-      cellSize,
-      cols,
-      rows,
-      grid,
-    );
+  rasterizeWalkSegments(walk.points, fromStep, toStep, originX, originY, cellSize, cols, rows, grid);
+  const maxCount = findMaxCount(grid);
+
+  return { grid, maxCount, originX, originY, cellSize, cols, rows };
+}
+
+/**
+ * Compute heatmap from multiple walks, aggregating all segments into one grid.
+ * Grid bounds are computed from all walks' points for stability.
+ */
+export function computeMultiWalkHeatmapGrid(
+  walks: WalkState[],
+  cellSize: number,
+  upToStep: number,
+): HeatmapGrid {
+  const allPoints: Point[] = walks.flatMap((w) => w.points);
+  const { originX, originY, cols, rows } = computeBoundsFromPoints(allPoints, cellSize);
+  const grid = new Uint16Array(cols * rows);
+
+  for (const walk of walks) {
+    rasterizeWalkSegments(walk.points, 0, upToStep, originX, originY, cellSize, cols, rows, grid);
   }
 
-  for (let j = 0; j < grid.length; j++) {
-    if (grid[j] > maxCount) maxCount = grid[j];
-  }
-
+  const maxCount = findMaxCount(grid);
   return { grid, maxCount, originX, originY, cellSize, cols, rows };
 }

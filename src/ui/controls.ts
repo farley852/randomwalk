@@ -7,6 +7,7 @@ export interface UICallbacks {
   onReset: () => void;
   onExport: () => void;
   onHeatmapToggle: (enabled: boolean) => void;
+  onHeatmapAllWalksToggle: (enabled: boolean) => void;
   onHeatmapOpacityChange: (opacity: number) => void;
   onTrailFadeToggle: (enabled: boolean) => void;
   onTrailLengthChange: (length: number) => void;
@@ -55,6 +56,7 @@ export function initControls(callbacks: UICallbacks) {
 
   // Heatmap controls
   const heatmapToggle = el<HTMLInputElement>("heatmap-toggle");
+  const heatmapAllWalksToggle = el<HTMLInputElement>("heatmap-allwalks-toggle");
   const heatmapOpacitySlider = el<HTMLInputElement>("heatmap-opacity-slider");
   const heatmapOpacityValue = el<HTMLSpanElement>("heatmap-opacity-value");
 
@@ -131,6 +133,10 @@ export function initControls(callbacks: UICallbacks) {
   // Heatmap events
   heatmapToggle.addEventListener("change", () => {
     callbacks.onHeatmapToggle(heatmapToggle.checked);
+  });
+
+  heatmapAllWalksToggle.addEventListener("change", () => {
+    callbacks.onHeatmapAllWalksToggle(heatmapAllWalksToggle.checked);
   });
 
   heatmapOpacitySlider.addEventListener("input", () => {
