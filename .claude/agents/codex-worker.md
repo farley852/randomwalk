@@ -2,7 +2,7 @@
 name: codex-worker
 description: Codex parallel worker via MCP integration
 tools: Read, Write, Edit, Grep, Glob, TodoWrite, mcp__codex__codex, mcp__codex__codex-reply
-model: haiku
+model: opus
 permissionMode: default
 ---
 
