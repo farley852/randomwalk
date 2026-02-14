@@ -57,7 +57,13 @@ const statsAccumulator = new StatsAccumulator();
 const statsPanel = initStatsPanel();
 
 const analyticsAccumulator = new AnalyticsAccumulator();
-const analyticsPanel = initAnalyticsPanel();
+let analyticsPanel: ReturnType<typeof initAnalyticsPanel>;
+try {
+  analyticsPanel = initAnalyticsPanel();
+} catch (e) {
+  console.warn("Analytics panel init failed:", e);
+  analyticsPanel = { update() {}, clear() {}, isVisible() { return false; } };
+}
 
 let analyticsFrameCounter = 0;
 const ANALYTICS_THROTTLE = 10;
