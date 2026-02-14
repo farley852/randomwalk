@@ -4,40 +4,51 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a **Claude Code + Codex MCP orchestration** configuration repository. It defines how Claude Code delegates bulk implementation tasks to OpenAI Codex via the Model Context Protocol (MCP). There is no application code — only configuration files that establish a two-agent workflow.
+**2D Random Walk Visualization** — browser-based tool built with TypeScript + Canvas + Vite. Features seedable PRNG for reproducible walks, real-time animation, and GIF export.
 
 **Repository:** https://github.com/farley852/randomwalk.git
+
+## Build & Dev Commands
+
+```bash
+npm run dev       # Start Vite dev server (http://localhost:5173)
+npm run build     # Type-check + production build
+npm run preview   # Preview production build
+npx tsc --noEmit  # Type-check only
+```
 
 ## Architecture
 
 ```
-Claude Code (Orchestrator)
-  │  Design, testing, architecture, security review, debugging
-  │
-  ├── .claude/agents/codex-worker.md      → Agent definition for Codex worker
-  ├── .claude/skills/codex-worker-skill/  → Delegation criteria (when to use Codex)
-  ├── .claude/settings.json               → MCP tool permissions
-  ├── .claude/settings.local.json         → Local permissions (web, git, gh CLI)
-  │
-  └──► Codex MCP Server (Implementation Engine)
-       Large refactoring, boilerplate, migrations, multi-file changes
-       Configured in .mcp.json → runs `codex mcp-server`
+src/
+├── main.ts              # Entry: wires UI → simulation → renderer
+├── simulation/
+│   ├── types.ts         # Point, WalkParams, WalkState, PlaybackState
+│   ├── prng.ts          # mulberry32 seedable PRNG
+│   └── walk.ts          # generateWalk() — pre-computes full Point[]
+├── rendering/
+│   ├── color.ts         # HSL gradient (blue→red)
+│   ├── camera.ts        # Viewport centering + scale
+│   └── renderer.ts      # WalkRenderer (stateless: walk + step → draw)
+└── ui/
+    ├── controls.ts      # Slider/button DOM bindings
+    └── export.ts        # GIF capture via modern-gif
 ```
 
-**Key principle:** Codex and Claude Code do NOT share context. Always provide explicit, self-contained prompts when delegating.
+**Data flow:** User controls → `generateWalk()` → `WalkState` (full `Point[]`) → `WalkRenderer.drawUpToStep()`. The renderer is stateless — receives walk + step index, enabling independent frame rendering for GIF export.
 
-## Delegation Rules
+## Key Design Decisions
 
-**Delegate to Codex** when: 10+ file refactors, boilerplate generation, framework migrations, 50+ line multi-file implementations, or 150K+ token context tasks.
+- Walk is pre-computed as `Point[]` — no incremental state
+- Renderer takes `(walk, stepIndex)` — pure rendering, no side effects
+- Camera computed from ALL points so viewport is stable during animation
+- GIF export re-renders frames independently (skips frames to cap at ~100)
 
-**Keep in Claude Code** when: test design/TDD, architecture decisions, security review, small changes (<20 lines), or interactive debugging.
+## 言語
+
+- ユーザーへの応答は**日本語**で行う（コード内のコメント・変数名は英語）
 
 ## MCP Integration
 
 - `mcp__codex__codex` — start a new Codex session (single-turn)
-- `mcp__codex__codex-reply` — continue an existing Codex session with `threadId` (multi-turn)
-- Default Codex settings: `approval-policy: "never"`, `sandbox: "workspace-write"`
-
-## Allowed External Access
-
-Web fetches are permitted for: `developers.openai.com`, `github.com`, `deepwiki.com`, `zenn.dev`. Git and GitHub CLI operations are pre-authorized in local settings.
+- `mcp__codex__codex-reply` — continue an existing Codex session with `threadId`

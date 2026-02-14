@@ -1,0 +1,135 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: system-ui, -apple-system, sans-serif;
+  background: #1a1a2e;
+  color: #e0e0e0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+#app {
+  display: flex;
+  gap: 24px;
+  padding: 24px;
+  align-items: flex-start;
+}
+
+#canvas-container {
+  position: relative;
+  border: 2px solid #333;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #0f0f23;
+}
+
+#walk-canvas {
+  display: block;
+  width: 640px;
+  height: 640px;
+}
+
+#status-indicator {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  font-size: 13px;
+  color: #888;
+  pointer-events: none;
+}
+
+#controls {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 220px;
+  padding: 20px;
+  background: #16213e;
+  border-radius: 8px;
+  border: 1px solid #333;
+}
+
+.control-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.control-group label {
+  font-size: 14px;
+  color: #aaa;
+}
+
+.control-group input[type="range"] {
+  width: 100%;
+  accent-color: #4a9eff;
+}
+
+.button-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.button-group button {
+  padding: 10px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.button-group button:hover {
+  opacity: 0.85;
+}
+
+.button-group button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+#play-btn {
+  background: #4a9eff;
+  color: #fff;
+}
+
+#reset-btn {
+  background: #555;
+  color: #fff;
+}
+
+#export-btn {
+  background: #e06c75;
+  color: #fff;
+}
+
+.divider {
+  border: none;
+  border-top: 1px solid #333;
+  margin: 4px 0;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #ccc;
+  cursor: pointer;
+}
+
+.checkbox-label input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: #4a9eff;
+  cursor: pointer;
+}
