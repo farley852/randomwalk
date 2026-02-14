@@ -184,17 +184,20 @@ export class AnalyticsAccumulator {
       endDistanceHist,
       walkType,
       walkCount: walks.length,
+      levyAlpha: isLevy ? (walks[0].params.levyAlpha ?? 1.5) : undefined,
     };
   }
 
   private emptyResult(walks: WalkState[]): AnalyticsData {
+    const walkType = walks[0].params.walkType;
     return {
       msdCurve: [],
       diffusionExponent: null,
       stepLengthHist: [],
       endDistanceHist: [],
-      walkType: walks[0].params.walkType,
+      walkType,
       walkCount: walks.length,
+      levyAlpha: walkType === "levy" ? (walks[0].params.levyAlpha ?? 1.5) : undefined,
     };
   }
 }

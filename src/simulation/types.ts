@@ -56,4 +56,5 @@ export interface AnalyticsData {
   endDistanceHist: HistogramBin[];
   walkType: WalkType;
   walkCount: number;
+  levyAlpha?: number;
 }

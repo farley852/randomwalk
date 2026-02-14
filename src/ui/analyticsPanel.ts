@@ -88,10 +88,11 @@ export function initAnalyticsPanel(): AnalyticsPanel {
       case "isotropic":
       case "lattice":
         return { alpha: 1.0, label: "\u03B1=1 (theory)" };
-      case "levy":
-        // Need levyAlpha from walk params — approximate from data context
-        // For now we don't have levyAlpha in AnalyticsData, so skip
-        return undefined;
+      case "levy": {
+        const la = data.levyAlpha ?? 1.5;
+        const alpha = 2 / la;
+        return { alpha, label: `\u03B1=${alpha.toFixed(2)} (theory)` };
+      }
       default:
         return undefined;
     }
