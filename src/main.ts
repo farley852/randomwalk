@@ -5,6 +5,7 @@ import { WalkRenderer } from "./rendering/renderer";
 import { initControls } from "./ui/controls";
 import { exportGif } from "./ui/export";
 import { readParamsFromURL, writeParamsToURL } from "./ui/urlParams";
+import { initKeyboard } from "./ui/keyboard";
 import "./style.css";
 
 const CANVAS_SIZE = 640;
@@ -64,6 +65,50 @@ function updateHeatmapForStep(step: number): void {
   }
 }
 
+let exporting = false;
+
+function handlePlay() {
+  if (playback.playing) {
+    stopAnimation();
+    ui.setPlayLabel("Play");
+    return;
+  }
+  // If finished, restart
+  if (playback.currentStep >= walk.params.steps) {
+    playback.currentStep = 0;
+    resetHeatmapCache();
+  }
+  playback.playing = true;
+  ui.setPlayLabel("Pause");
+  statusEl.textContent = "";
+  runAnimation();
+}
+
+function handleReset() {
+  stopAnimation();
+  playback.currentStep = 0;
+  resetHeatmapCache();
+  renderer.clear();
+  statusEl.textContent = "";
+  ui.setPlayLabel("Play");
+}
+
+async function handleExport() {
+  exporting = true;
+  ui.setExportEnabled(false);
+  statusEl.textContent = "Exporting GIF…";
+  try {
+    await exportGif(walk, renderer, CANVAS_SIZE, renderOptions);
+    statusEl.textContent = "GIF saved!";
+  } catch (e) {
+    console.error("GIF export failed:", e);
+    statusEl.textContent = "Export failed";
+  } finally {
+    exporting = false;
+    ui.setExportEnabled(true);
+  }
+}
+
 const ui = initControls({
   onParamsChange(params) {
     stopAnimation();
@@ -80,45 +125,9 @@ const ui = initControls({
     playback.drawSpeed = speed;
   },
 
-  onPlay() {
-    if (playback.playing) {
-      stopAnimation();
-      ui.setPlayLabel("Play");
-      return;
-    }
-    // If finished, restart
-    if (playback.currentStep >= walk.params.steps) {
-      playback.currentStep = 0;
-      resetHeatmapCache();
-    }
-    playback.playing = true;
-    ui.setPlayLabel("Pause");
-    statusEl.textContent = "";
-    runAnimation();
-  },
-
-  onReset() {
-    stopAnimation();
-    playback.currentStep = 0;
-    resetHeatmapCache();
-    renderer.clear();
-    statusEl.textContent = "";
-    ui.setPlayLabel("Play");
-  },
-
-  async onExport() {
-    ui.setExportEnabled(false);
-    statusEl.textContent = "Exporting GIF…";
-    try {
-      await exportGif(walk, renderer, CANVAS_SIZE, renderOptions);
-      statusEl.textContent = "GIF saved!";
-    } catch (e) {
-      console.error("GIF export failed:", e);
-      statusEl.textContent = "Export failed";
-    } finally {
-      ui.setExportEnabled(true);
-    }
-  },
+  onPlay: handlePlay,
+  onReset: handleReset,
+  onExport: handleExport,
 
   onHeatmapToggle(enabled) {
     renderOptions.heatmap.enabled = enabled;
@@ -185,3 +194,11 @@ window.addEventListener("resize", handleResize);
 
 // Sync sliders with URL-restored params
 ui.setParams(initialParams);
+
+// Keyboard shortcuts
+initKeyboard({
+  onTogglePlay: handlePlay,
+  onReset: handleReset,
+  onExport: handleExport,
+  isExporting: () => exporting,
+});

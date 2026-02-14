@@ -100,10 +100,16 @@ export function initControls(callbacks: UICallbacks) {
     getHeatmapOpacity: () => Number(heatmapOpacitySlider.value),
     setExportEnabled(enabled: boolean) {
       exportBtn.disabled = !enabled;
-      exportBtn.textContent = enabled ? "Export GIF" : "Exporting…";
+      const textSpan = exportBtn.querySelector(".btn-text");
+      if (textSpan) {
+        textSpan.textContent = enabled ? "Export GIF" : "Exporting…";
+      }
     },
     setPlayLabel(label: string) {
-      playBtn.textContent = label;
+      const textSpan = playBtn.querySelector(".btn-text");
+      if (textSpan) {
+        textSpan.textContent = label;
+      }
     },
     setParams(params: Partial<WalkParams>) {
       if (params.seed !== undefined) {
