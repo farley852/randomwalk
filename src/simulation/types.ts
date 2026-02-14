@@ -24,3 +24,11 @@ export interface RenderOptions {
   heatmap: { enabled: boolean; opacity: number };
   trailFade: { enabled: boolean; trailLength: number };
 }
+
+export interface WalkStats {
+  currentStep: number;
+  totalSteps: number;
+  distanceFromOrigin: number;
+  maxDistance: number;
+  totalPathLength: number;
+}

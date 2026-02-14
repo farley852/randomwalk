@@ -6,6 +6,8 @@ import { initControls } from "./ui/controls";
 import { exportGif } from "./ui/export";
 import { readParamsFromURL, writeParamsToURL } from "./ui/urlParams";
 import { initKeyboard } from "./ui/keyboard";
+import { StatsAccumulator } from "./simulation/stats";
+import { initStatsPanel } from "./ui/statsPanel";
 import "./style.css";
 
 const CANVAS_SIZE = 640;
@@ -32,6 +34,9 @@ const renderOptions: RenderOptions = {
 
 let heatmapGrid: HeatmapGrid | null = null;
 let heatmapLastStep = 0;
+
+const statsAccumulator = new StatsAccumulator();
+const statsPanel = initStatsPanel();
 
 function getCellSize(): number {
   return walk.params.stepLength * 2;
@@ -77,6 +82,7 @@ function handlePlay() {
   if (playback.currentStep >= walk.params.steps) {
     playback.currentStep = 0;
     resetHeatmapCache();
+    statsAccumulator.reset();
   }
   playback.playing = true;
   ui.setPlayLabel("Pause");
@@ -88,9 +94,11 @@ function handleReset() {
   stopAnimation();
   playback.currentStep = 0;
   resetHeatmapCache();
+  statsAccumulator.reset();
   renderer.clear();
   statusEl.textContent = "";
   ui.setPlayLabel("Play");
+  statsPanel.clear();
 }
 
 async function handleExport() {
@@ -115,9 +123,11 @@ const ui = initControls({
     walk = generateWalk(params);
     playback.currentStep = 0;
     resetHeatmapCache();
+    statsAccumulator.reset();
     renderer.clear();
     statusEl.textContent = "";
     ui.setPlayLabel("Play");
+    statsPanel.clear();
     writeParamsToURL(params);
   },
 
@@ -167,11 +177,11 @@ function runAnimation() {
 
   updateHeatmapForStep(playback.currentStep);
   renderer.drawUpToStep(walk, playback.currentStep, renderOptions, heatmapGrid ?? undefined);
-  statusEl.textContent = `${playback.currentStep} / ${walk.params.steps}`;
+  statsPanel.update(statsAccumulator.compute(walk, playback.currentStep));
 
   if (playback.currentStep >= walk.params.steps) {
     playback.playing = false;
-    statusEl.textContent = `Done — ${walk.params.steps} steps`;
+    statusEl.textContent = "Done";
     ui.setPlayLabel("Play");
     return;
   }
