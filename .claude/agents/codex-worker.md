@@ -41,6 +41,8 @@ When delegating to Codex, structure prompts as:
 
 ## Important Notes
 
+- **Model:** Always pass `model: "gpt-5.3-codex"` when calling `mcp__codex__codex`
+- **Approval policy:** Always pass `approval-policy: "never"` (Claude Code does not support elicitation; omitting this causes timeouts)
 - Codex and Claude Code do NOT share context — always provide explicit information in prompts
 - Work on feature branches and verify with `git diff`
 - Confirm tests pass before reporting completion

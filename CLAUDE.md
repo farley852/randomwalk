@@ -63,3 +63,5 @@ src/
 
 - `mcp__codex__codex` — start a new Codex session (single-turn)
 - `mcp__codex__codex-reply` — continue an existing Codex session with `threadId`
+- **Model:** `gpt-5.3-codex` を明示的に指定する（`model` パラメータ）
+- **Approval policy:** `approval-policy: "never"` を必ず指定する（Claude Code が elicitation 未対応のため、省略するとタイムアウトする）

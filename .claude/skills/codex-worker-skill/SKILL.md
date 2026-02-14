@@ -27,7 +27,8 @@ Keep the task in Claude Code when:
 ```
 mcp__codex__codex(
   prompt: "Create utility module...",
-  approval-policy: "never",
+  model: "gpt-5.3-codex",
+  approval-policy: "never",   # 必須: Claude Code が elicitation 未対応のため
   sandbox: "workspace-write"
 )
 ```
