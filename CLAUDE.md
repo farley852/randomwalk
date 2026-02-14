@@ -42,6 +42,7 @@ src/
 **Data flow:** User controls → `generateWalk()` → `WalkState` (full `Point[]`) → `WalkRenderer.drawUpToStep()`. The renderer is stateless — receives walk + step index + render options, enabling independent frame rendering for GIF export.
 
 **Rendering pipeline (layer order):**
+
 1. Clear (background #0f0f23)
 2. Heatmap overlay (if enabled)
 3. Walk segments (with optional trail fade)

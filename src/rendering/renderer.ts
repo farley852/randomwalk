@@ -37,14 +37,10 @@ export class WalkRenderer {
     walk: WalkState,
     upToStep: number,
     options?: RenderOptions,
-    heatmapGrid?: HeatmapGrid
+    heatmapGrid?: HeatmapGrid,
   ): void {
     this.clear();
-    const vt = computeViewTransform(
-      walk.points,
-      this.width,
-      this.height
-    );
+    const vt = computeViewTransform(walk.points, this.width, this.height);
 
     // Layer 2: Heatmap overlay
     if (options?.heatmap.enabled && heatmapGrid) {
@@ -62,7 +58,7 @@ export class WalkRenderer {
     walk: WalkState,
     upToStep: number,
     vt: ViewTransform,
-    options?: RenderOptions
+    options?: RenderOptions,
   ): void {
     const { points } = walk;
     const total = points.length;
@@ -100,11 +96,7 @@ export class WalkRenderer {
     ctx.globalAlpha = savedAlpha;
   }
 
-  private drawStartEnd(
-    walk: WalkState,
-    upToStep: number,
-    vt: ViewTransform
-  ): void {
+  private drawStartEnd(walk: WalkState, upToStep: number, vt: ViewTransform): void {
     const { points } = walk;
     const ctx = this.ctx;
     const r = Math.max(3, vt.scale * 0.8);
@@ -113,13 +105,7 @@ export class WalkRenderer {
     const start = points[0];
     ctx.fillStyle = "#50fa7b";
     ctx.beginPath();
-    ctx.arc(
-      start.x * vt.scale + vt.offsetX,
-      start.y * vt.scale + vt.offsetY,
-      r,
-      0,
-      Math.PI * 2
-    );
+    ctx.arc(start.x * vt.scale + vt.offsetX, start.y * vt.scale + vt.offsetY, r, 0, Math.PI * 2);
     ctx.fill();
 
     // Current/end dot (white)
@@ -128,13 +114,7 @@ export class WalkRenderer {
       const end = points[endIdx];
       ctx.fillStyle = "#ffffff";
       ctx.beginPath();
-      ctx.arc(
-        end.x * vt.scale + vt.offsetX,
-        end.y * vt.scale + vt.offsetY,
-        r,
-        0,
-        Math.PI * 2
-      );
+      ctx.arc(end.x * vt.scale + vt.offsetX, end.y * vt.scale + vt.offsetY, r, 0, Math.PI * 2);
       ctx.fill();
     }
   }

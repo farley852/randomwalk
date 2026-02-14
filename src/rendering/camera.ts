@@ -14,7 +14,7 @@ export function computeViewTransform(
   points: Point[],
   canvasWidth: number,
   canvasHeight: number,
-  padding = 40
+  padding = 40,
 ): ViewTransform {
   if (points.length === 0) {
     return { offsetX: canvasWidth / 2, offsetY: canvasHeight / 2, scale: 1 };

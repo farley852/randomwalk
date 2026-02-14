@@ -18,10 +18,10 @@ renderer.clear();
 const statusEl = document.getElementById("status-indicator")!;
 
 let walk: WalkState = generateWalk({ seed: 42, steps: 500, stepLength: 5 });
-let playback: PlaybackState = { currentStep: 0, playing: false, drawSpeed: 5 };
+const playback: PlaybackState = { currentStep: 0, playing: false, drawSpeed: 5 };
 let animFrameId = 0;
 
-let renderOptions: RenderOptions = {
+const renderOptions: RenderOptions = {
   heatmap: { enabled: false, opacity: 0.5 },
   trailFade: { enabled: false, trailLength: 100 },
 };
@@ -150,10 +150,7 @@ function runAnimation() {
   if (!playback.playing) return;
 
   const stepsThisFrame = playback.drawSpeed;
-  playback.currentStep = Math.min(
-    playback.currentStep + stepsThisFrame,
-    walk.params.steps
-  );
+  playback.currentStep = Math.min(playback.currentStep + stepsThisFrame, walk.params.steps);
 
   updateHeatmapForStep(playback.currentStep);
   renderer.drawUpToStep(walk, playback.currentStep, renderOptions, heatmapGrid ?? undefined);

@@ -11,7 +11,7 @@ export function drawHeatmap(
   ctx: CanvasRenderingContext2D,
   grid: HeatmapGrid,
   vt: ViewTransform,
-  opacity: number
+  opacity: number,
 ): void {
   if (grid.maxCount === 0) return;
 

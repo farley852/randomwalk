@@ -12,7 +12,7 @@ export async function exportGif(
   walk: WalkState,
   renderer: WalkRenderer,
   canvasSize: number,
-  options?: RenderOptions
+  options?: RenderOptions,
 ): Promise<void> {
   const totalSteps = walk.params.steps;
   // Aim for ~100 frames max to keep GIF size manageable

@@ -15,12 +15,16 @@ export interface HeatmapGrid {
  * and increment the visit count.
  */
 function rasterizeSegment(
-  x0: number, y0: number,
-  x1: number, y1: number,
-  originX: number, originY: number,
+  x0: number,
+  y0: number,
+  x1: number,
+  y1: number,
+  originX: number,
+  originY: number,
   cellSize: number,
-  cols: number, rows: number,
-  grid: Uint16Array
+  cols: number,
+  rows: number,
+  grid: Uint16Array,
 ): void {
   // Convert to grid coordinates
   const gx0 = (x0 - originX) / cellSize;
@@ -47,21 +51,21 @@ function rasterizeSegment(
   }
 
   // tMaxX/tMaxY: parameter t at which we cross the next grid boundary
-  let tMaxX = dx === 0 ? Infinity : ((cx + (sx > 0 ? 1 : 0)) - gx0) / (gx1 - gx0) * (sx > 0 ? 1 : 1);
-  let tMaxY = dy === 0 ? Infinity : ((cy + (sy > 0 ? 1 : 0)) - gy0) / (gy1 - gy0) * (sy > 0 ? 1 : 1);
+  let tMaxX =
+    dx === 0 ? Infinity : ((cx + (sx > 0 ? 1 : 0) - gx0) / (gx1 - gx0)) * (sx > 0 ? 1 : 1);
+  let tMaxY =
+    dy === 0 ? Infinity : ((cy + (sy > 0 ? 1 : 0) - gy0) / (gy1 - gy0)) * (sy > 0 ? 1 : 1);
 
   // Recalculate properly
   if (dx !== 0) {
-    tMaxX = sx > 0
-      ? (Math.floor(gx0) + 1 - gx0) / (gx1 - gx0)
-      : (gx0 - Math.floor(gx0)) / (gx0 - gx1);
+    tMaxX =
+      sx > 0 ? (Math.floor(gx0) + 1 - gx0) / (gx1 - gx0) : (gx0 - Math.floor(gx0)) / (gx0 - gx1);
   } else {
     tMaxX = Infinity;
   }
   if (dy !== 0) {
-    tMaxY = sy > 0
-      ? (Math.floor(gy0) + 1 - gy0) / (gy1 - gy0)
-      : (gy0 - Math.floor(gy0)) / (gy0 - gy1);
+    tMaxY =
+      sy > 0 ? (Math.floor(gy0) + 1 - gy0) / (gy1 - gy0) : (gy0 - Math.floor(gy0)) / (gy0 - gy1);
   } else {
     tMaxY = Infinity;
   }
@@ -90,11 +94,14 @@ function rasterizeSegment(
 
 function computeBoundsAndGrid(
   walk: WalkState,
-  cellSize: number
+  cellSize: number,
 ): { originX: number; originY: number; cols: number; rows: number } {
   const { points } = walk;
 
-  let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+  let minX = Infinity,
+    maxX = -Infinity,
+    minY = Infinity,
+    maxY = -Infinity;
   // Use ALL points for stable grid dimensions (matches camera behavior)
   for (const p of points) {
     if (p.x < minX) minX = p.x;
@@ -123,7 +130,7 @@ function computeBoundsAndGrid(
 export function computeHeatmapGrid(
   walk: WalkState,
   cellSize: number,
-  upToStep: number
+  upToStep: number,
 ): HeatmapGrid {
   const { originX, originY, cols, rows } = computeBoundsAndGrid(walk, cellSize);
   const grid = new Uint16Array(cols * rows);
@@ -133,9 +140,16 @@ export function computeHeatmapGrid(
   let maxCount = 0;
   for (let i = 0; i < end; i++) {
     rasterizeSegment(
-      points[i].x, points[i].y,
-      points[i + 1].x, points[i + 1].y,
-      originX, originY, cellSize, cols, rows, grid
+      points[i].x,
+      points[i].y,
+      points[i + 1].x,
+      points[i + 1].y,
+      originX,
+      originY,
+      cellSize,
+      cols,
+      rows,
+      grid,
     );
   }
 
@@ -155,7 +169,7 @@ export function extendHeatmapGrid(
   walk: WalkState,
   fromStep: number,
   toStep: number,
-  cellSize: number
+  cellSize: number,
 ): HeatmapGrid {
   const { grid, cols, rows, originX, originY } = prev;
   const { points } = walk;
@@ -164,9 +178,16 @@ export function extendHeatmapGrid(
   let maxCount = prev.maxCount;
   for (let i = fromStep; i < end; i++) {
     rasterizeSegment(
-      points[i].x, points[i].y,
-      points[i + 1].x, points[i + 1].y,
-      originX, originY, cellSize, cols, rows, grid
+      points[i].x,
+      points[i].y,
+      points[i + 1].x,
+      points[i + 1].y,
+      originX,
+      originY,
+      cellSize,
+      cols,
+      rows,
+      grid,
     );
   }
 

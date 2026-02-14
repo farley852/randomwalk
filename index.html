@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ja">
   <head>
     <meta charset="UTF-8" />
@@ -37,7 +37,9 @@
           </label>
         </div>
         <div class="control-group" id="traillength-group">
-          <label for="traillength-slider">Trail Length: <span id="traillength-value">100</span></label>
+          <label for="traillength-slider"
+            >Trail Length: <span id="traillength-value">100</span></label
+          >
           <input type="range" id="traillength-slider" min="10" max="5000" value="100" step="10" />
         </div>
         <hr class="divider" />
@@ -48,8 +50,17 @@
           </label>
         </div>
         <div class="control-group" id="heatmap-opacity-group">
-          <label for="heatmap-opacity-slider">Opacity: <span id="heatmap-opacity-value">0.5</span></label>
-          <input type="range" id="heatmap-opacity-slider" min="0.1" max="1.0" value="0.5" step="0.05" />
+          <label for="heatmap-opacity-slider"
+            >Opacity: <span id="heatmap-opacity-value">0.5</span></label
+          >
+          <input
+            type="range"
+            id="heatmap-opacity-slider"
+            min="0.1"
+            max="1.0"
+            value="0.5"
+            step="0.05"
+          />
         </div>
         <div class="button-group">
           <button id="play-btn">Play</button>

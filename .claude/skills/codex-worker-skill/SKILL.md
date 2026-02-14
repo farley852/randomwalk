@@ -41,7 +41,7 @@ mcp__codex__codex(
 
 ## Division of Labor
 
-| Role | Responsibility |
-|------|---------------|
-| Claude Code | Design, test, review, orchestration |
-| Codex MCP | Implementation, refactoring, boilerplate |
+| Role        | Responsibility                           |
+| ----------- | ---------------------------------------- |
+| Claude Code | Design, test, review, orchestration      |
+| Codex MCP   | Implementation, refactoring, boilerplate |
