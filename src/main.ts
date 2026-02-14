@@ -2,10 +2,13 @@ import { generateWalk } from "./simulation/walk";
 import type { WalkState, PlaybackState, RenderOptions } from "./simulation/types";
 import { computeHeatmapGrid, extendHeatmapGrid, type HeatmapGrid } from "./simulation/heatmap";
 import { WalkRenderer } from "./rendering/renderer";
+import { CameraController } from "./rendering/cameraController";
+import type { ViewTransform } from "./rendering/camera";
 import { initControls } from "./ui/controls";
 import { exportGif } from "./ui/export";
 import { readParamsFromURL, readWalkCountFromURL, writeParamsToURL } from "./ui/urlParams";
 import { initKeyboard } from "./ui/keyboard";
+import { initCanvasInteraction } from "./ui/canvasInteraction";
 import { StatsAccumulator } from "./simulation/stats";
 import { initStatsPanel } from "./ui/statsPanel";
 import "./style.css";
@@ -20,6 +23,8 @@ canvas.height = CANVAS_SIZE;
 
 const renderer = new WalkRenderer(canvas);
 renderer.clear();
+
+const camera = new CameraController(CANVAS_SIZE, CANVAS_SIZE);
 
 const statusEl = document.getElementById("status-indicator")!;
 
@@ -62,14 +67,27 @@ function getMaxSteps(): number {
   return Math.max(...walks.map((w) => w.params.steps));
 }
 
+function getAllPoints() {
+  return walks.flatMap((w) => w.points);
+}
+
+function getCurrentViewTransform(): ViewTransform {
+  return camera.getViewTransform(getAllPoints());
+}
+
+function drawFrame(step: number): void {
+  const vt = getCurrentViewTransform();
+  if (walks.length === 1) {
+    renderer.drawUpToStep(walks[0], step, renderOptions, heatmapGrid ?? undefined, vt);
+  } else {
+    renderer.drawMultipleUpToStep(walks, step, renderOptions, heatmapGrid ?? undefined, vt);
+  }
+}
+
 function redrawCurrent(): void {
   if (playback.currentStep > 0) {
     updateHeatmapForStep(playback.currentStep);
-    if (walks.length === 1) {
-      renderer.drawUpToStep(walks[0], playback.currentStep, renderOptions, heatmapGrid ?? undefined);
-    } else {
-      renderer.drawMultipleUpToStep(walks, playback.currentStep, renderOptions, heatmapGrid ?? undefined);
-    }
+    drawFrame(playback.currentStep);
   } else {
     renderer.clear();
   }
@@ -78,7 +96,6 @@ function redrawCurrent(): void {
 function updateHeatmapForStep(step: number): void {
   if (!renderOptions.heatmap.enabled) return;
 
-  // For multi-walk, use primary walk for heatmap
   const primaryWalk = walks[0];
 
   if (!heatmapGrid || step < heatmapLastStep) {
@@ -126,8 +143,11 @@ async function handleExport() {
   ui.setExportEnabled(false);
   statusEl.textContent = "Exporting GIF…";
   try {
+    // Export always uses auto-fit camera (ignores zoom/pan state)
     await exportGif(walks, renderer, CANVAS_SIZE, renderOptions);
     statusEl.textContent = "GIF saved!";
+    // Redraw with current camera state after export
+    redrawCurrent();
   } catch (e) {
     console.error("GIF export failed:", e);
     statusEl.textContent = "Export failed";
@@ -144,6 +164,7 @@ const ui = initControls({
     playback.currentStep = 0;
     resetHeatmapCache();
     statsAccumulator.reset();
+    camera.resetToAutoFit();
     renderer.clear();
     statusEl.textContent = "";
     ui.setPlayLabel("Play");
@@ -204,6 +225,7 @@ const ui = initControls({
     playback.currentStep = 0;
     resetHeatmapCache();
     statsAccumulator.reset();
+    camera.resetToAutoFit();
     renderer.clear();
     statusEl.textContent = "";
     ui.setPlayLabel("Play");
@@ -228,11 +250,7 @@ function runAnimation() {
   playback.currentStep = Math.min(playback.currentStep + stepsThisFrame, maxSteps);
 
   updateHeatmapForStep(playback.currentStep);
-  if (walks.length === 1) {
-    renderer.drawUpToStep(walks[0], playback.currentStep, renderOptions, heatmapGrid ?? undefined);
-  } else {
-    renderer.drawMultipleUpToStep(walks, playback.currentStep, renderOptions, heatmapGrid ?? undefined);
-  }
+  drawFrame(playback.currentStep);
   statsPanel.update(statsAccumulator.compute(walks[0], Math.min(playback.currentStep, walks[0].params.steps)));
 
   if (playback.currentStep >= maxSteps) {
@@ -244,6 +262,9 @@ function runAnimation() {
 
   animFrameId = requestAnimationFrame(runAnimation);
 }
+
+// Canvas interaction (zoom/pan)
+initCanvasInteraction(canvas, camera, getCurrentViewTransform, redrawCurrent);
 
 // Handle canvas resize with DPR support
 function handleResize() {
@@ -259,6 +280,7 @@ function handleResize() {
     canvas.style.width = `${cssSize}px`;
     canvas.style.height = `${cssSize}px`;
     renderer.resize(bufferSize, bufferSize);
+    camera.resize(bufferSize, bufferSize);
     redrawCurrent();
   }
 }
