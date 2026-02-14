@@ -199,6 +199,110 @@ body {
   display: none;
 }
 
+/* ── Main column (canvas + analytics) ── */
+#main-column {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* ── Analytics panel ── */
+.analytics-panel {
+  border: 2px solid #333;
+  border-top: none;
+  border-radius: 0 0 8px 8px;
+  background: #0f0f23;
+  overflow: hidden;
+}
+
+.analytics-toggle {
+  width: 100%;
+  padding: 8px 12px;
+  border: none;
+  background: #16213e;
+  color: #aaa;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: background 0.15s;
+}
+
+.analytics-toggle:hover {
+  background: #1a2848;
+}
+
+.analytics-toggle-icon {
+  display: inline-block;
+  transition: transform 0.2s;
+  font-size: 10px;
+}
+
+.analytics-panel.collapsed .analytics-toggle-icon {
+  transform: rotate(-90deg);
+}
+
+.analytics-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.analytics-panel.collapsed .analytics-content {
+  display: none;
+}
+
+.analytics-tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid #333;
+}
+
+.analytics-tab {
+  flex: 1;
+  padding: 6px 8px;
+  border: none;
+  background: transparent;
+  color: #777;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+  border-bottom: 2px solid transparent;
+}
+
+.analytics-tab:hover {
+  color: #bbb;
+}
+
+.analytics-tab.active {
+  color: #4a9eff;
+  border-bottom-color: #4a9eff;
+}
+
+.analytics-chart-area {
+  position: relative;
+}
+
+.analytics-canvas {
+  display: block;
+  width: 100%;
+  height: 200px;
+}
+
+.analytics-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-top: 1px solid #333;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
 /* ── Mobile layout (≤768px) ── */
 @media (max-width: 768px) {
   body {

@@ -8,14 +8,37 @@
   </head>
   <body>
     <div id="app">
-      <div id="canvas-container">
-        <canvas id="walk-canvas"></canvas>
-        <div id="status-indicator"></div>
-        <div id="stats-panel">
-          <div class="stat-row"><span class="stat-label">Steps</span><span class="stat-value" data-stat="steps">—</span></div>
-          <div class="stat-row"><span class="stat-label">Distance</span><span class="stat-value" data-stat="origin-dist">—</span></div>
-          <div class="stat-row"><span class="stat-label">Max Dist</span><span class="stat-value" data-stat="max-dist">—</span></div>
-          <div class="stat-row"><span class="stat-label">Path Len</span><span class="stat-value" data-stat="path-length">—</span></div>
+      <div id="main-column">
+        <div id="canvas-container">
+          <canvas id="walk-canvas"></canvas>
+          <div id="status-indicator"></div>
+          <div id="stats-panel">
+            <div class="stat-row"><span class="stat-label">Steps</span><span class="stat-value" data-stat="steps">—</span></div>
+            <div class="stat-row"><span class="stat-label">Distance</span><span class="stat-value" data-stat="origin-dist">—</span></div>
+            <div class="stat-row"><span class="stat-label">Max Dist</span><span class="stat-value" data-stat="max-dist">—</span></div>
+            <div class="stat-row"><span class="stat-label">Path Len</span><span class="stat-value" data-stat="path-length">—</span></div>
+          </div>
+        </div>
+        <div id="analytics-panel" class="analytics-panel collapsed">
+          <button id="analytics-toggle" class="analytics-toggle">
+            <span class="analytics-toggle-icon">&#x25BC;</span> Analytics
+          </button>
+          <div id="analytics-content" class="analytics-content">
+            <div class="analytics-tabs">
+              <button class="analytics-tab active" data-tab="msd">MSD</button>
+              <button class="analytics-tab" data-tab="step-dist">Step Dist.</button>
+              <button class="analytics-tab" data-tab="end-dist">End Dist.</button>
+            </div>
+            <div class="analytics-chart-area">
+              <canvas id="chart-msd" class="analytics-canvas"></canvas>
+              <canvas id="chart-step-dist" class="analytics-canvas" style="display:none"></canvas>
+              <canvas id="chart-end-dist" class="analytics-canvas" style="display:none"></canvas>
+            </div>
+            <div id="analytics-info" class="analytics-info">
+              <span class="stat-label">Diffusion &alpha;:</span>
+              <span id="diffusion-exponent-value" class="stat-value">&mdash;</span>
+            </div>
+          </div>
         </div>
       </div>
       <div id="controls">
@@ -114,7 +137,7 @@
           <button id="export-btn"><span class="btn-text">Export GIF</span> <span class="shortcut-hint">[E]</span></button>
         </div>
       </div>
-    </div>
+    </div><!-- /app -->
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>
