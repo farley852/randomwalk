@@ -38,6 +38,26 @@ describe("readParamsFromURL", () => {
     expect(params.seed).toBe(43);
     expect(params.steps).toBe(100);
   });
+
+  it("reads walkType from URL", () => {
+    history.replaceState(null, "", "/?walkType=levy");
+    expect(readParamsFromURL()).toEqual({ walkType: "levy" });
+  });
+
+  it("ignores invalid walkType", () => {
+    history.replaceState(null, "", "/?walkType=invalid");
+    expect(readParamsFromURL().walkType).toBeUndefined();
+  });
+
+  it("reads levyAlpha from URL", () => {
+    history.replaceState(null, "", "/?levyAlpha=2.0");
+    expect(readParamsFromURL()).toEqual({ levyAlpha: 2.0 });
+  });
+
+  it("clamps levyAlpha to valid range", () => {
+    history.replaceState(null, "", "/?levyAlpha=5.0");
+    expect(readParamsFromURL().levyAlpha).toBe(3.0);
+  });
 });
 
 describe("writeParamsToURL", () => {
@@ -64,5 +84,19 @@ describe("writeParamsToURL", () => {
     expect(sp.has("seed")).toBe(false);
     expect(sp.get("steps")).toBe("1000");
     expect(sp.has("stepLength")).toBe(false);
+  });
+
+  it("writes walkType when non-default", () => {
+    writeParamsToURL({ seed: 42, steps: 500, stepLength: 5, walkType: "levy", levyAlpha: 2.0 });
+    const sp = new URLSearchParams(window.location.search);
+    expect(sp.get("walkType")).toBe("levy");
+    expect(sp.get("levyAlpha")).toBe("2");
+  });
+
+  it("omits levyAlpha when it equals default 1.5", () => {
+    writeParamsToURL({ seed: 42, steps: 500, stepLength: 5, walkType: "levy", levyAlpha: 1.5 });
+    const sp = new URLSearchParams(window.location.search);
+    expect(sp.get("walkType")).toBe("levy");
+    expect(sp.has("levyAlpha")).toBe(false);
   });
 });

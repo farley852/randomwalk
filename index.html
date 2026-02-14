@@ -33,6 +33,19 @@
           <input type="range" id="steplength-slider" min="1" max="20" value="5" step="1" />
         </div>
         <div class="control-group">
+          <label for="walktype-select">Walk Type</label>
+          <select id="walktype-select">
+            <option value="isotropic">Isotropic (Free)</option>
+            <option value="lattice">Lattice (4-dir)</option>
+            <option value="levy">Levy Flight</option>
+            <option value="self-avoiding">Self-Avoiding</option>
+          </select>
+        </div>
+        <div class="control-group levy-only">
+          <label for="levyalpha-slider">Levy &alpha;: <span id="levyalpha-value">1.5</span></label>
+          <input type="range" id="levyalpha-slider" min="1.0" max="3.0" value="1.5" step="0.1" />
+        </div>
+        <div class="control-group">
           <label for="speed-slider">Draw Speed: <span id="speed-value">5</span></label>
           <input type="range" id="speed-slider" min="1" max="50" value="5" step="1" />
         </div>

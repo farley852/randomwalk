@@ -1,4 +1,4 @@
-import type { WalkParams } from "../simulation/types";
+import type { WalkParams, WalkType } from "../simulation/types";
 
 export interface UICallbacks {
   onParamsChange: (params: WalkParams) => void;
@@ -23,11 +23,16 @@ export function initControls(callbacks: UICallbacks) {
   const stepsSlider = el<HTMLInputElement>("steps-slider");
   const stepLengthSlider = el<HTMLInputElement>("steplength-slider");
   const speedSlider = el<HTMLInputElement>("speed-slider");
+  const walkTypeSelect = el<HTMLSelectElement>("walktype-select");
+  const levyAlphaSlider = el<HTMLInputElement>("levyalpha-slider");
 
   const seedValue = el<HTMLSpanElement>("seed-value");
   const stepsValue = el<HTMLSpanElement>("steps-value");
   const stepLengthValue = el<HTMLSpanElement>("steplength-value");
   const speedValue = el<HTMLSpanElement>("speed-value");
+  const levyAlphaValue = el<HTMLSpanElement>("levyalpha-value");
+
+  const levyOnlyGroup = document.querySelector(".levy-only") as HTMLElement;
 
   const playBtn = el<HTMLButtonElement>("play-btn");
   const resetBtn = el<HTMLButtonElement>("reset-btn");
@@ -43,13 +48,24 @@ export function initControls(callbacks: UICallbacks) {
   const heatmapOpacitySlider = el<HTMLInputElement>("heatmap-opacity-slider");
   const heatmapOpacityValue = el<HTMLSpanElement>("heatmap-opacity-value");
 
+  function updateLevyVisibility() {
+    if (levyOnlyGroup) {
+      levyOnlyGroup.classList.toggle("visible", walkTypeSelect.value === "levy");
+    }
+  }
+
   function getParams(): WalkParams {
-    return {
+    const walkType = walkTypeSelect.value as WalkType;
+    const params: WalkParams = {
       seed: Number(seedSlider.value),
       steps: Number(stepsSlider.value),
       stepLength: Number(stepLengthSlider.value),
-      walkType: "isotropic",
+      walkType,
     };
+    if (walkType === "levy") {
+      params.levyAlpha = Number(levyAlphaSlider.value);
+    }
+    return params;
   }
 
   function onSliderInput() {
@@ -62,6 +78,16 @@ export function initControls(callbacks: UICallbacks) {
   seedSlider.addEventListener("input", onSliderInput);
   stepsSlider.addEventListener("input", onSliderInput);
   stepLengthSlider.addEventListener("input", onSliderInput);
+
+  walkTypeSelect.addEventListener("change", () => {
+    updateLevyVisibility();
+    callbacks.onParamsChange(getParams());
+  });
+
+  levyAlphaSlider.addEventListener("input", () => {
+    levyAlphaValue.textContent = levyAlphaSlider.value;
+    callbacks.onParamsChange(getParams());
+  });
 
   speedSlider.addEventListener("input", () => {
     speedValue.textContent = speedSlider.value;
@@ -106,6 +132,9 @@ export function initControls(callbacks: UICallbacks) {
     }
   });
 
+  // Initialize levy visibility
+  updateLevyVisibility();
+
   return {
     getParams,
     getSpeed: () => Number(speedSlider.value),
@@ -138,6 +167,14 @@ export function initControls(callbacks: UICallbacks) {
       if (params.stepLength !== undefined) {
         stepLengthSlider.value = String(params.stepLength);
         stepLengthValue.textContent = String(params.stepLength);
+      }
+      if (params.walkType !== undefined) {
+        walkTypeSelect.value = params.walkType;
+        updateLevyVisibility();
+      }
+      if (params.levyAlpha !== undefined) {
+        levyAlphaSlider.value = String(params.levyAlpha);
+        levyAlphaValue.textContent = String(params.levyAlpha);
       }
     },
   };
