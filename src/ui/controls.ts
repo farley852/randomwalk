@@ -10,6 +10,8 @@ export interface UICallbacks {
   onHeatmapOpacityChange: (opacity: number) => void;
   onTrailFadeToggle: (enabled: boolean) => void;
   onTrailLengthChange: (length: number) => void;
+  onGridToggle: (enabled: boolean) => void;
+  onAxesToggle: (enabled: boolean) => void;
 }
 
 function el<T extends HTMLElement>(id: string): T {
@@ -42,6 +44,10 @@ export function initControls(callbacks: UICallbacks) {
   const trailFadeToggle = el<HTMLInputElement>("trailfade-toggle");
   const trailLengthSlider = el<HTMLInputElement>("traillength-slider");
   const trailLengthValue = el<HTMLSpanElement>("traillength-value");
+
+  // Grid controls
+  const gridToggle = el<HTMLInputElement>("grid-toggle");
+  const axesToggle = el<HTMLInputElement>("axes-toggle");
 
   // Heatmap controls
   const heatmapToggle = el<HTMLInputElement>("heatmap-toggle");
@@ -104,6 +110,15 @@ export function initControls(callbacks: UICallbacks) {
     callbacks.onTrailLengthChange(Number(trailLengthSlider.value));
   });
 
+  // Grid events
+  gridToggle.addEventListener("change", () => {
+    callbacks.onGridToggle(gridToggle.checked);
+  });
+
+  axesToggle.addEventListener("change", () => {
+    callbacks.onAxesToggle(axesToggle.checked);
+  });
+
   // Heatmap events
   heatmapToggle.addEventListener("change", () => {
     callbacks.onHeatmapToggle(heatmapToggle.checked);
@@ -140,6 +155,11 @@ export function initControls(callbacks: UICallbacks) {
     getSpeed: () => Number(speedSlider.value),
     getTrailFadeEnabled: () => trailFadeToggle.checked,
     getTrailLength: () => Number(trailLengthSlider.value),
+    getGridEnabled: () => gridToggle.checked,
+    getAxesEnabled: () => axesToggle.checked,
+    setGridEnabled(enabled: boolean) {
+      gridToggle.checked = enabled;
+    },
     getHeatmapEnabled: () => heatmapToggle.checked,
     getHeatmapOpacity: () => Number(heatmapOpacitySlider.value),
     setExportEnabled(enabled: boolean) {

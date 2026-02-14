@@ -3,6 +3,7 @@ import type { HeatmapGrid } from "../simulation/heatmap";
 import { computeViewTransform, type ViewTransform } from "./camera";
 import { stepColor } from "./color";
 import { drawHeatmap } from "./heatmapRenderer";
+import { drawGrid } from "./gridRenderer";
 
 export class WalkRenderer {
   private ctx: CanvasRenderingContext2D;
@@ -45,6 +46,15 @@ export class WalkRenderer {
     // Layer 2: Heatmap overlay
     if (options?.heatmap.enabled && heatmapGrid) {
       drawHeatmap(this.ctx, heatmapGrid, vt, options.heatmap.opacity);
+    }
+
+    // Layer 2.5: Grid overlay
+    if (options?.grid.enabled) {
+      drawGrid(this.ctx, this.width, this.height, vt, {
+        enabled: true,
+        cellSize: walk.params.stepLength,
+        showAxes: options.grid.showAxes,
+      });
     }
 
     // Layer 3: Walk segments

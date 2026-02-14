@@ -32,6 +32,7 @@ let animFrameId = 0;
 const renderOptions: RenderOptions = {
   heatmap: { enabled: false, opacity: 0.5 },
   trailFade: { enabled: false, trailLength: 100 },
+  grid: { enabled: false, showAxes: true },
 };
 
 let heatmapGrid: HeatmapGrid | null = null;
@@ -131,6 +132,12 @@ const ui = initControls({
     ui.setPlayLabel("Play");
     statsPanel.clear();
     writeParamsToURL(params);
+
+    // Auto-enable grid for lattice walk
+    if (params.walkType === "lattice" && !renderOptions.grid.enabled) {
+      renderOptions.grid.enabled = true;
+      ui.setGridEnabled(true);
+    }
   },
 
   onSpeedChange(speed) {
@@ -159,6 +166,16 @@ const ui = initControls({
 
   onTrailLengthChange(length) {
     renderOptions.trailFade.trailLength = length;
+    redrawCurrent();
+  },
+
+  onGridToggle(enabled) {
+    renderOptions.grid.enabled = enabled;
+    redrawCurrent();
+  },
+
+  onAxesToggle(enabled) {
+    renderOptions.grid.showAxes = enabled;
     redrawCurrent();
   },
 });
