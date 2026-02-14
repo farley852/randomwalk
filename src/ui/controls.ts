@@ -91,6 +91,20 @@ export function initControls(callbacks: UICallbacks) {
   resetBtn.addEventListener("click", () => callbacks.onReset());
   exportBtn.addEventListener("click", () => callbacks.onExport());
 
+  // Drawer toggle (mobile)
+  const controls = el<HTMLElement>("controls");
+  const drawerHandle = el<HTMLElement>("drawer-handle");
+
+  drawerHandle.addEventListener("click", () => {
+    controls.classList.toggle("open");
+  });
+
+  document.addEventListener("click", (e) => {
+    if (!controls.contains(e.target as Node) && controls.classList.contains("open")) {
+      controls.classList.remove("open");
+    }
+  });
+
   return {
     getParams,
     getSpeed: () => Number(speedSlider.value),

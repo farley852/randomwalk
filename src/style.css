@@ -36,6 +36,7 @@ body {
   display: block;
   width: 640px;
   height: 640px;
+  touch-action: none;
 }
 
 #status-indicator {
@@ -169,4 +170,77 @@ body {
   height: 16px;
   accent-color: #4a9eff;
   cursor: pointer;
+}
+
+#drawer-handle {
+  display: none;
+}
+
+/* ── Mobile layout (≤768px) ── */
+@media (max-width: 768px) {
+  body {
+    align-items: flex-start;
+  }
+
+  #app {
+    flex-direction: column;
+    gap: 0;
+    padding: 0;
+    width: 100%;
+  }
+
+  #canvas-container {
+    width: 100%;
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+    border-top: none;
+  }
+
+  #walk-canvas {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1;
+  }
+
+  #controls {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    border-radius: 16px 16px 0 0;
+    border: 1px solid #333;
+    border-bottom: none;
+    max-height: 60vh;
+    overflow-y: auto;
+    transform: translateY(calc(100% - 48px));
+    transition: transform 0.3s ease;
+    z-index: 10;
+    padding-top: 0;
+  }
+
+  #controls.open {
+    transform: translateY(0);
+  }
+
+  #drawer-handle {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 48px;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  #drawer-handle span {
+    display: block;
+    width: 40px;
+    height: 4px;
+    border-radius: 2px;
+    background: #555;
+  }
+
+  .shortcut-hint {
+    display: none;
+  }
 }

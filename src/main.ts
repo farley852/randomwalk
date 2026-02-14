@@ -10,7 +10,9 @@ import { StatsAccumulator } from "./simulation/stats";
 import { initStatsPanel } from "./ui/statsPanel";
 import "./style.css";
 
-const CANVAS_SIZE = 640;
+const CSS_SIZE = 640;
+const DPR = Math.min(window.devicePixelRatio || 1, 2);
+const CANVAS_SIZE = Math.round(CSS_SIZE * DPR);
 
 const canvas = document.getElementById("walk-canvas") as HTMLCanvasElement;
 canvas.width = CANVAS_SIZE;
@@ -189,13 +191,20 @@ function runAnimation() {
   animFrameId = requestAnimationFrame(runAnimation);
 }
 
-// Handle canvas resize
+// Handle canvas resize with DPR support
 function handleResize() {
   const container = document.getElementById("canvas-container")!;
   const rect = container.getBoundingClientRect();
-  const size = Math.min(rect.width, rect.height, 800);
-  if (size > 0 && size !== canvas.width) {
-    renderer.resize(size, size);
+  const cssSize = Math.min(rect.width, rect.height, 800);
+  if (cssSize <= 0) return;
+
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const bufferSize = Math.round(cssSize * dpr);
+
+  if (bufferSize !== canvas.width) {
+    canvas.style.width = `${cssSize}px`;
+    canvas.style.height = `${cssSize}px`;
+    renderer.resize(bufferSize, bufferSize);
     redrawCurrent();
   }
 }
