@@ -37,3 +37,23 @@ export interface WalkStats {
   maxDistance: number;
   totalPathLength: number;
 }
+
+export interface MSDPoint {
+  t: number;
+  msd: number;
+}
+
+export interface HistogramBin {
+  lo: number;
+  hi: number;
+  count: number;
+}
+
+export interface AnalyticsData {
+  msdCurve: MSDPoint[];
+  diffusionExponent: number | null;
+  stepLengthHist: HistogramBin[];
+  endDistanceHist: HistogramBin[];
+  walkType: WalkType;
+  walkCount: number;
+}
