@@ -63,3 +63,30 @@ src/
 
 - `mcp__codex__codex` — start a new Codex session (single-turn)
 - `mcp__codex__codex-reply` — continue an existing Codex session with `threadId`
+
+## Codex 委任バックログ
+
+Codex MCP が使えない環境（モバイル等）で作業する場合、以下のルールに従う。
+
+### いつ記録するか
+
+Claude 単体で作業を完了した後、**Codex に任せたほうが確実・効率的だった**と判断したタスクがあれば `CODEX_BACKLOG.md` に追記する。典型例:
+
+- テスト実行・結果確認（`vitest run` など）
+- ビルド検証（`npm run build`）
+- Lint / Format の一括適用と修正
+- 大規模リファクタリングの実行＆動作確認
+- シェルコマンドを伴う検証作業全般
+
+### 記録フォーマット
+
+```markdown
+## YYYY-MM-DD セッション概要（1行）
+
+- [ ] タスク内容（具体的なコマンドやファイルを明記）
+- [ ] タスク内容
+```
+
+### デスクトップセッションでの消化
+
+Codex MCP が利用可能なセッションで `CODEX_BACKLOG.md` を確認し、未消化タスクがあれば Codex に委任して実行する。完了したタスクは `- [x]` に更新する。
