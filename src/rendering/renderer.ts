@@ -53,7 +53,7 @@ export class WalkRenderer {
     if (options?.grid.enabled) {
       drawGrid(this.ctx, this.width, this.height, vt, {
         enabled: true,
-        cellSize: walk.params.stepLength,
+        cellSize: options.grid.cellSize,
         showAxes: options.grid.showAxes,
       });
     }
@@ -94,7 +94,7 @@ export class WalkRenderer {
     if (options?.grid.enabled) {
       drawGrid(this.ctx, this.width, this.height, vt, {
         enabled: true,
-        cellSize: walks[0].params.stepLength,
+        cellSize: options.grid.cellSize,
         showAxes: options.grid.showAxes,
       });
     }

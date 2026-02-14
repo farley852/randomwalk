@@ -13,6 +13,7 @@ export interface UICallbacks {
   onTrailLengthChange: (length: number) => void;
   onGridToggle: (enabled: boolean) => void;
   onAxesToggle: (enabled: boolean) => void;
+  onGridCellSizeChange: (size: number) => void;
   onWalkCountChange: (count: number) => void;
 }
 
@@ -53,6 +54,8 @@ export function initControls(callbacks: UICallbacks) {
   // Grid controls
   const gridToggle = el<HTMLInputElement>("grid-toggle");
   const axesToggle = el<HTMLInputElement>("axes-toggle");
+  const gridCellSizeSlider = el<HTMLInputElement>("gridcellsize-slider");
+  const gridCellSizeValue = el<HTMLSpanElement>("gridcellsize-value");
 
   // Heatmap controls
   const heatmapToggle = el<HTMLInputElement>("heatmap-toggle");
@@ -130,6 +133,11 @@ export function initControls(callbacks: UICallbacks) {
     callbacks.onAxesToggle(axesToggle.checked);
   });
 
+  gridCellSizeSlider.addEventListener("input", () => {
+    gridCellSizeValue.textContent = gridCellSizeSlider.value;
+    callbacks.onGridCellSizeChange(Number(gridCellSizeSlider.value));
+  });
+
   // Heatmap events
   heatmapToggle.addEventListener("change", () => {
     callbacks.onHeatmapToggle(heatmapToggle.checked);
@@ -177,6 +185,11 @@ export function initControls(callbacks: UICallbacks) {
     },
     getGridEnabled: () => gridToggle.checked,
     getAxesEnabled: () => axesToggle.checked,
+    getGridCellSize: () => Number(gridCellSizeSlider.value),
+    setGridCellSize(size: number) {
+      gridCellSizeSlider.value = String(size);
+      gridCellSizeValue.textContent = String(size);
+    },
     setGridEnabled(enabled: boolean) {
       gridToggle.checked = enabled;
     },

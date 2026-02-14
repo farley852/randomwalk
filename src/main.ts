@@ -45,7 +45,7 @@ let animFrameId = 0;
 const renderOptions: RenderOptions = {
   heatmap: { enabled: false, opacity: 0.5, allWalks: false },
   trailFade: { enabled: false, trailLength: 100 },
-  grid: { enabled: false, showAxes: true },
+  grid: { enabled: false, showAxes: true, cellSize: 5 },
 };
 
 let heatmapGrid: HeatmapGrid | null = null;
@@ -55,7 +55,7 @@ const statsAccumulator = new StatsAccumulator();
 const statsPanel = initStatsPanel();
 
 function getCellSize(): number {
-  return walks[0].params.stepLength * 2;
+  return renderOptions.grid.cellSize * 2;
 }
 
 function resetHeatmapCache(): void {
@@ -178,6 +178,10 @@ const ui = initControls({
     statsPanel.clear();
     writeParamsToURL(params, walkCount);
 
+    // Sync grid cell size with step length
+    renderOptions.grid.cellSize = params.stepLength;
+    ui.setGridCellSize(params.stepLength);
+
     // Auto-enable grid for lattice walk
     if (params.walkType === "lattice" && !renderOptions.grid.enabled) {
       renderOptions.grid.enabled = true;
@@ -227,6 +231,12 @@ const ui = initControls({
 
   onAxesToggle(enabled) {
     renderOptions.grid.showAxes = enabled;
+    redrawCurrent();
+  },
+
+  onGridCellSizeChange(size) {
+    renderOptions.grid.cellSize = size;
+    resetHeatmapCache();
     redrawCurrent();
   },
 
