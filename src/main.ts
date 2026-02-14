@@ -4,6 +4,7 @@ import { computeHeatmapGrid, extendHeatmapGrid, type HeatmapGrid } from "./simul
 import { WalkRenderer } from "./rendering/renderer";
 import { initControls } from "./ui/controls";
 import { exportGif } from "./ui/export";
+import { readParamsFromURL, writeParamsToURL } from "./ui/urlParams";
 import "./style.css";
 
 const CANVAS_SIZE = 640;
@@ -17,7 +18,9 @@ renderer.clear();
 
 const statusEl = document.getElementById("status-indicator")!;
 
-let walk: WalkState = generateWalk({ seed: 42, steps: 500, stepLength: 5 });
+const defaultParams = { seed: 42, steps: 500, stepLength: 5 };
+const initialParams = { ...defaultParams, ...readParamsFromURL() };
+let walk: WalkState = generateWalk(initialParams);
 const playback: PlaybackState = { currentStep: 0, playing: false, drawSpeed: 5 };
 let animFrameId = 0;
 
@@ -70,6 +73,7 @@ const ui = initControls({
     renderer.clear();
     statusEl.textContent = "";
     ui.setPlayLabel("Play");
+    writeParamsToURL(params);
   },
 
   onSpeedChange(speed) {
@@ -178,3 +182,6 @@ function handleResize() {
 }
 
 window.addEventListener("resize", handleResize);
+
+// Sync sliders with URL-restored params
+ui.setParams(initialParams);

@@ -105,6 +105,20 @@ export function initControls(callbacks: UICallbacks) {
     setPlayLabel(label: string) {
       playBtn.textContent = label;
     },
+    setParams(params: Partial<WalkParams>) {
+      if (params.seed !== undefined) {
+        seedSlider.value = String(params.seed);
+        seedValue.textContent = String(params.seed);
+      }
+      if (params.steps !== undefined) {
+        stepsSlider.value = String(params.steps);
+        stepsValue.textContent = String(params.steps);
+      }
+      if (params.stepLength !== undefined) {
+        stepLengthSlider.value = String(params.stepLength);
+        stepLengthValue.textContent = String(params.stepLength);
+      }
+    },
   };
 }
 

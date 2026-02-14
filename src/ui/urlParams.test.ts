@@ -1,0 +1,68 @@
+// @vitest-environment jsdom
+import { describe, it, expect, beforeEach } from "vitest";
+import { readParamsFromURL, writeParamsToURL } from "./urlParams";
+
+describe("readParamsFromURL", () => {
+  beforeEach(() => {
+    // Reset URL to no params
+    history.replaceState(null, "", "/");
+  });
+
+  it("returns empty object when no params present", () => {
+    expect(readParamsFromURL()).toEqual({});
+  });
+
+  it("reads seed, steps, stepLength from URL", () => {
+    history.replaceState(null, "", "/?seed=100&steps=1000&stepLength=10");
+    expect(readParamsFromURL()).toEqual({ seed: 100, steps: 1000, stepLength: 10 });
+  });
+
+  it("clamps values to valid ranges", () => {
+    history.replaceState(null, "", "/?seed=99999&steps=0&stepLength=50");
+    const params = readParamsFromURL();
+    expect(params.seed).toBe(9999);
+    expect(params.steps).toBe(10);
+    expect(params.stepLength).toBe(20);
+  });
+
+  it("ignores non-numeric values", () => {
+    history.replaceState(null, "", "/?seed=abc&steps=200");
+    const params = readParamsFromURL();
+    expect(params.seed).toBeUndefined();
+    expect(params.steps).toBe(200);
+  });
+
+  it("rounds fractional values", () => {
+    history.replaceState(null, "", "/?seed=42.7&steps=100.3");
+    const params = readParamsFromURL();
+    expect(params.seed).toBe(43);
+    expect(params.steps).toBe(100);
+  });
+});
+
+describe("writeParamsToURL", () => {
+  beforeEach(() => {
+    history.replaceState(null, "", "/");
+  });
+
+  it("omits default values from URL", () => {
+    writeParamsToURL({ seed: 42, steps: 500, stepLength: 5 });
+    expect(window.location.search).toBe("");
+  });
+
+  it("writes non-default values to URL", () => {
+    writeParamsToURL({ seed: 100, steps: 1000, stepLength: 10 });
+    const sp = new URLSearchParams(window.location.search);
+    expect(sp.get("seed")).toBe("100");
+    expect(sp.get("steps")).toBe("1000");
+    expect(sp.get("stepLength")).toBe("10");
+  });
+
+  it("only writes changed values", () => {
+    writeParamsToURL({ seed: 42, steps: 1000, stepLength: 5 });
+    const sp = new URLSearchParams(window.location.search);
+    expect(sp.has("seed")).toBe(false);
+    expect(sp.get("steps")).toBe("1000");
+    expect(sp.has("stepLength")).toBe(false);
+  });
+});
