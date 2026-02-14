@@ -66,3 +66,42 @@ describe("generateWalk — lattice", () => {
     expect(walk1.points).toEqual(walk2.points);
   });
 });
+
+describe("generateWalk — levy", () => {
+  const baseParams = { seed: 42, steps: 200, stepLength: 1, walkType: "levy" as const };
+
+  it("produces steps+1 points", () => {
+    const { points } = generateWalk(baseParams);
+    expect(points).toHaveLength(201);
+  });
+
+  it("step lengths are >= stepLength", () => {
+    const { points } = generateWalk(baseParams);
+    for (let i = 1; i < points.length; i++) {
+      const dx = points[i].x - points[i - 1].x;
+      const dy = points[i].y - points[i - 1].y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      expect(dist).toBeGreaterThanOrEqual(baseParams.stepLength - 1e-10);
+    }
+  });
+
+  it("step lengths have variation (max/min > 2)", () => {
+    const { points } = generateWalk(baseParams);
+    let minDist = Infinity;
+    let maxDist = 0;
+    for (let i = 1; i < points.length; i++) {
+      const dx = points[i].x - points[i - 1].x;
+      const dy = points[i].y - points[i - 1].y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      minDist = Math.min(minDist, dist);
+      maxDist = Math.max(maxDist, dist);
+    }
+    expect(maxDist / minDist).toBeGreaterThan(2);
+  });
+
+  it("is reproducible with the same seed", () => {
+    const walk1 = generateWalk(baseParams);
+    const walk2 = generateWalk(baseParams);
+    expect(walk1.points).toEqual(walk2.points);
+  });
+});
