@@ -1,26 +1,26 @@
-import type { AnalyticsData } from "../simulation/types";
+import type { AnalysisData } from "../simulation/types";
 import { ChartRenderer, type TheoryLine } from "../rendering/chartRenderer";
 
-export interface AnalyticsPanel {
-  update(data: AnalyticsData): void;
+export interface AnalysisPanel {
+  update(data: AnalysisData): void;
   clear(): void;
   isVisible(): boolean;
 }
 
 type TabId = "msd" | "step-dist" | "end-dist";
 
-const NOOP_PANEL: AnalyticsPanel = {
+const NOOP_PANEL: AnalysisPanel = {
   update() {},
   clear() {},
   isVisible() { return false; },
 };
 
-export function initAnalyticsPanel(): AnalyticsPanel {
-  const panel = document.getElementById("analytics-panel");
-  const toggleBtn = document.getElementById("analytics-toggle");
+export function initAnalysisPanel(): AnalysisPanel {
+  const panel = document.getElementById("analysis-panel");
+  const toggleBtn = document.getElementById("analysis-toggle");
   if (!panel || !toggleBtn) return NOOP_PANEL;
 
-  const tabs = panel.querySelectorAll<HTMLButtonElement>(".analytics-tab");
+  const tabs = panel.querySelectorAll<HTMLButtonElement>(".analysis-tab");
   const msdCanvas = document.getElementById("chart-msd") as HTMLCanvasElement | null;
   const stepCanvas = document.getElementById("chart-step-dist") as HTMLCanvasElement | null;
   const endCanvas = document.getElementById("chart-end-dist") as HTMLCanvasElement | null;
@@ -94,9 +94,9 @@ export function initAnalyticsPanel(): AnalyticsPanel {
   });
   observer.observe(panel);
 
-  let lastData: AnalyticsData | null = null;
+  let lastData: AnalysisData | null = null;
 
-  function getTheoryLine(data: AnalyticsData): TheoryLine | undefined {
+  function getTheoryLine(data: AnalysisData): TheoryLine | undefined {
     switch (data.walkType) {
       case "isotropic":
       case "lattice":
@@ -111,7 +111,7 @@ export function initAnalyticsPanel(): AnalyticsPanel {
     }
   }
 
-  function renderActiveTab(data: AnalyticsData): void {
+  function renderActiveTab(data: AnalysisData): void {
     switch (activeTab) {
       case "msd":
         renderers.msd.drawMSDPlot(
@@ -139,7 +139,7 @@ export function initAnalyticsPanel(): AnalyticsPanel {
   }
 
   return {
-    update(data: AnalyticsData): void {
+    update(data: AnalysisData): void {
       lastData = data;
 
       // Update diffusion exponent display

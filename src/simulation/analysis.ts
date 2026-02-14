@@ -1,4 +1,4 @@
-import type { WalkState, MSDPoint, HistogramBin, AnalyticsData } from "./types";
+import type { WalkState, MSDPoint, HistogramBin, AnalysisData } from "./types";
 
 const MAX_MSD_SAMPLES = 200;
 const HIST_BINS = 30;
@@ -121,9 +121,9 @@ function buildLogHistogram(values: number[], binCount: number): HistogramBin[] {
 }
 
 /**
- * Accumulator for analytics data. Supports incremental step-length computation.
+ * Accumulator for analysis data. Supports incremental step-length computation.
  */
-export class AnalyticsAccumulator {
+export class AnalysisAccumulator {
   private lastStep = 0;
   private stepLengths: number[] = [];
 
@@ -132,7 +132,7 @@ export class AnalyticsAccumulator {
     this.stepLengths = [];
   }
 
-  compute(walks: WalkState[], currentStep: number): AnalyticsData {
+  compute(walks: WalkState[], currentStep: number): AnalysisData {
     if (currentStep <= 0) {
       return this.emptyResult(walks);
     }
@@ -188,7 +188,7 @@ export class AnalyticsAccumulator {
     };
   }
 
-  private emptyResult(walks: WalkState[]): AnalyticsData {
+  private emptyResult(walks: WalkState[]): AnalysisData {
     const walkType = walks[0].params.walkType;
     return {
       msdCurve: [],

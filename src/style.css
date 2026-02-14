@@ -199,15 +199,15 @@ body {
   display: none;
 }
 
-/* ── Main column (canvas + analytics) ── */
+/* ── Main column (canvas + analysis) ── */
 #main-column {
   display: flex;
   flex-direction: column;
   gap: 0;
 }
 
-/* ── Analytics panel ── */
-.analytics-panel {
+/* ── Analysis panel ── */
+.analysis-panel {
   border: 2px solid #333;
   border-top: none;
   border-radius: 0 0 8px 8px;
@@ -215,7 +215,7 @@ body {
   overflow: hidden;
 }
 
-.analytics-toggle {
+.analysis-toggle {
   width: 100%;
   padding: 8px 12px;
   border: none;
@@ -231,37 +231,37 @@ body {
   transition: background 0.15s;
 }
 
-.analytics-toggle:hover {
+.analysis-toggle:hover {
   background: #1a2848;
 }
 
-.analytics-toggle-icon {
+.analysis-toggle-icon {
   display: inline-block;
   transition: transform 0.2s;
   font-size: 10px;
 }
 
-.analytics-panel.collapsed .analytics-toggle-icon {
+.analysis-panel.collapsed .analysis-toggle-icon {
   transform: rotate(-90deg);
 }
 
-.analytics-content {
+.analysis-content {
   display: flex;
   flex-direction: column;
   gap: 0;
 }
 
-.analytics-panel.collapsed .analytics-content {
+.analysis-panel.collapsed .analysis-content {
   display: none;
 }
 
-.analytics-tabs {
+.analysis-tabs {
   display: flex;
   gap: 0;
   border-bottom: 1px solid #333;
 }
 
-.analytics-tab {
+.analysis-tab {
   flex: 1;
   padding: 6px 8px;
   border: none;
@@ -274,26 +274,26 @@ body {
   border-bottom: 2px solid transparent;
 }
 
-.analytics-tab:hover {
+.analysis-tab:hover {
   color: #bbb;
 }
 
-.analytics-tab.active {
+.analysis-tab.active {
   color: #4a9eff;
   border-bottom-color: #4a9eff;
 }
 
-.analytics-chart-area {
+.analysis-chart-area {
   position: relative;
 }
 
-.analytics-canvas {
+.analysis-canvas {
   display: block;
   width: 100%;
   height: 200px;
 }
 
-.analytics-info {
+.analysis-info {
   display: flex;
   align-items: center;
   gap: 8px;

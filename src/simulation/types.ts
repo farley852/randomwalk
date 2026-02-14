@@ -49,7 +49,7 @@ export interface HistogramBin {
   count: number;
 }
 
-export interface AnalyticsData {
+export interface AnalysisData {
   msdCurve: MSDPoint[];
   diffusionExponent: number | null;
   stepLengthHist: HistogramBin[];

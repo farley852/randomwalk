@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { AnalyticsAccumulator, buildHistogram, buildLogHistogram } from "./analytics";
+import { AnalysisAccumulator, buildHistogram, buildLogHistogram } from "./analysis";
 import { generateWalk } from "./walk";
 import type { WalkState, WalkParams } from "./types";
 
@@ -16,10 +16,10 @@ function makeStraightWalk(n: number): WalkState {
   return makeWalk(points);
 }
 
-describe("AnalyticsAccumulator", () => {
+describe("AnalysisAccumulator", () => {
   // Test 1: Straight walk MSD = t²
   it("computes MSD = t² for a straight walk", () => {
-    const acc = new AnalyticsAccumulator();
+    const acc = new AnalysisAccumulator();
     const walk = makeStraightWalk(100);
     const data = acc.compute([walk], 100);
 
@@ -30,7 +30,7 @@ describe("AnalyticsAccumulator", () => {
 
   // Test 2: Multi-walk MSD averaging
   it("averages MSD correctly over multiple walks", () => {
-    const acc = new AnalyticsAccumulator();
+    const acc = new AnalysisAccumulator();
     // Walk 1: goes right → r²(t) = t²
     const walk1 = makeWalk([
       { x: 0, y: 0 }, { x: 1, y: 0 }, { x: 2, y: 0 }, { x: 3, y: 0 },
@@ -49,7 +49,7 @@ describe("AnalyticsAccumulator", () => {
 
   // Test 3: Isotropic step length histogram peaks around stepLength
   it("produces step length histogram peaked near stepLength for isotropic walk", () => {
-    const acc = new AnalyticsAccumulator();
+    const acc = new AnalysisAccumulator();
     const walk = generateWalk({ seed: 42, steps: 1000, stepLength: 5, walkType: "isotropic" });
     const data = acc.compute([walk], 1000);
 
@@ -67,7 +67,7 @@ describe("AnalyticsAccumulator", () => {
 
   // Test 4: Levy step length histogram has heavy tail
   it("produces step length histogram with heavy tail for Levy walk", () => {
-    const acc = new AnalyticsAccumulator();
+    const acc = new AnalysisAccumulator();
     const walk = generateWalk({ seed: 42, steps: 5000, stepLength: 1, walkType: "levy", levyAlpha: 1.5 });
     const data = acc.compute([walk], 5000);
 
@@ -79,7 +79,7 @@ describe("AnalyticsAccumulator", () => {
 
   // Test 5: Isotropic long walk diffusion exponent ≈ 1.0
   it("estimates diffusion exponent ≈ 1.0 for isotropic walk", () => {
-    const acc = new AnalyticsAccumulator();
+    const acc = new AnalysisAccumulator();
     // Average over multiple walks for better convergence
     const walks = Array.from({ length: 20 }, (_, i) =>
       generateWalk({ seed: 100 + i, steps: 10000, stepLength: 1, walkType: "isotropic" }),
@@ -92,7 +92,7 @@ describe("AnalyticsAccumulator", () => {
 
   // Test 6: diffusionExponent is null when < 10 steps
   it("returns null diffusion exponent for fewer than 10 steps", () => {
-    const acc = new AnalyticsAccumulator();
+    const acc = new AnalysisAccumulator();
     const walk = makeStraightWalk(5);
     const data = acc.compute([walk], 5);
 
@@ -101,7 +101,7 @@ describe("AnalyticsAccumulator", () => {
 
   // Test 7: End distance histogram total count = walkCount
   it("produces end distance histogram with count equal to walkCount", () => {
-    const acc = new AnalyticsAccumulator();
+    const acc = new AnalysisAccumulator();
     const walks = Array.from({ length: 5 }, (_, i) =>
       generateWalk({ seed: i + 1, steps: 100, stepLength: 1, walkType: "isotropic" }),
     );
@@ -117,12 +117,12 @@ describe("AnalyticsAccumulator", () => {
     const walk = generateWalk({ seed: 42, steps: 200, stepLength: 5, walkType: "isotropic" });
 
     // Incremental: compute at 100, then at 200
-    const accInc = new AnalyticsAccumulator();
+    const accInc = new AnalysisAccumulator();
     accInc.compute([walk], 100);
     const incResult = accInc.compute([walk], 200);
 
     // Full: compute directly at 200
-    const accFull = new AnalyticsAccumulator();
+    const accFull = new AnalysisAccumulator();
     const fullResult = accFull.compute([walk], 200);
 
     // MSD should be identical
@@ -142,7 +142,7 @@ describe("AnalyticsAccumulator", () => {
   it("resets correctly when step goes backwards", () => {
     const walk = generateWalk({ seed: 42, steps: 200, stepLength: 5, walkType: "isotropic" });
 
-    const acc = new AnalyticsAccumulator();
+    const acc = new AnalysisAccumulator();
     acc.compute([walk], 100);
     const result = acc.compute([walk], 50);
 
@@ -158,7 +158,7 @@ describe("AnalyticsAccumulator", () => {
 
   // Test 10: reset() clears all state
   it("clears all state on reset()", () => {
-    const acc = new AnalyticsAccumulator();
+    const acc = new AnalysisAccumulator();
     const walk = generateWalk({ seed: 42, steps: 100, stepLength: 5, walkType: "isotropic" });
     acc.compute([walk], 100);
 

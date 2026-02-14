@@ -11,8 +11,8 @@ import { initKeyboard } from "./ui/keyboard";
 import { initCanvasInteraction } from "./ui/canvasInteraction";
 import { StatsAccumulator } from "./simulation/stats";
 import { initStatsPanel } from "./ui/statsPanel";
-import { AnalyticsAccumulator } from "./simulation/analytics";
-import { initAnalyticsPanel } from "./ui/analyticsPanel";
+import { AnalysisAccumulator } from "./simulation/analysis";
+import { initAnalysisPanel } from "./ui/analysisPanel";
 import "./style.css";
 
 const CSS_SIZE = 640;
@@ -56,17 +56,17 @@ let heatmapLastStep = 0;
 const statsAccumulator = new StatsAccumulator();
 const statsPanel = initStatsPanel();
 
-const analyticsAccumulator = new AnalyticsAccumulator();
-let analyticsPanel: ReturnType<typeof initAnalyticsPanel>;
+const analysisAccumulator = new AnalysisAccumulator();
+let analysisPanel: ReturnType<typeof initAnalysisPanel>;
 try {
-  analyticsPanel = initAnalyticsPanel();
+  analysisPanel = initAnalysisPanel();
 } catch (e) {
-  console.warn("Analytics panel init failed:", e);
-  analyticsPanel = { update() {}, clear() {}, isVisible() { return false; } };
+  console.warn("Analysis panel init failed:", e);
+  analysisPanel = { update() {}, clear() {}, isVisible() { return false; } };
 }
 
-let analyticsFrameCounter = 0;
-const ANALYTICS_THROTTLE = 10;
+let analysisFrameCounter = 0;
+const ANALYSIS_THROTTLE = 10;
 
 function getCellSize(): number {
   return renderOptions.grid.cellSize * 2;
@@ -141,8 +141,8 @@ function handlePlay() {
     playback.currentStep = 0;
     resetHeatmapCache();
     statsAccumulator.reset();
-    analyticsAccumulator.reset();
-    analyticsPanel.clear();
+    analysisAccumulator.reset();
+    analysisPanel.clear();
   }
   playback.playing = true;
   ui.setPlayLabel("Pause");
@@ -155,12 +155,12 @@ function handleReset() {
   playback.currentStep = 0;
   resetHeatmapCache();
   statsAccumulator.reset();
-  analyticsAccumulator.reset();
+  analysisAccumulator.reset();
   renderer.clear();
   statusEl.textContent = "";
   ui.setPlayLabel("Play");
   statsPanel.clear();
-  analyticsPanel.clear();
+  analysisPanel.clear();
 }
 
 async function handleExport() {
@@ -189,13 +189,13 @@ const ui = initControls({
     playback.currentStep = 0;
     resetHeatmapCache();
     statsAccumulator.reset();
-    analyticsAccumulator.reset();
+    analysisAccumulator.reset();
     camera.resetToAutoFit();
     renderer.clear();
     statusEl.textContent = "";
     ui.setPlayLabel("Play");
     statsPanel.clear();
-    analyticsPanel.clear();
+    analysisPanel.clear();
     writeParamsToURL(params, walkCount);
 
     // Sync grid cell size with step length
@@ -268,13 +268,13 @@ const ui = initControls({
     playback.currentStep = 0;
     resetHeatmapCache();
     statsAccumulator.reset();
-    analyticsAccumulator.reset();
+    analysisAccumulator.reset();
     camera.resetToAutoFit();
     renderer.clear();
     statusEl.textContent = "";
     ui.setPlayLabel("Play");
     statsPanel.clear();
-    analyticsPanel.clear();
+    analysisPanel.clear();
     writeParamsToURL(params, walkCount);
   },
 });
@@ -298,12 +298,12 @@ function runAnimation() {
   drawFrame(playback.currentStep);
   statsPanel.update(statsAccumulator.compute(walks[0], Math.min(playback.currentStep, walks[0].params.steps)));
 
-  analyticsFrameCounter++;
+  analysisFrameCounter++;
   if (
-    analyticsPanel.isVisible() &&
-    (analyticsFrameCounter % ANALYTICS_THROTTLE === 0 || playback.currentStep >= maxSteps)
+    analysisPanel.isVisible() &&
+    (analysisFrameCounter % ANALYSIS_THROTTLE === 0 || playback.currentStep >= maxSteps)
   ) {
-    analyticsPanel.update(analyticsAccumulator.compute(walks, playback.currentStep));
+    analysisPanel.update(analysisAccumulator.compute(walks, playback.currentStep));
   }
 
   if (playback.currentStep >= maxSteps) {
