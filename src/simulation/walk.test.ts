@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import { generateWalk } from "./walk";
 
 describe("generateWalk", () => {
-  const baseParams = { seed: 42, steps: 100, stepLength: 1 };
+  const baseParams = { seed: 42, steps: 100, stepLength: 1, walkType: "isotropic" as const };
 
   it("produces steps+1 points (origin + N steps)", () => {
     const { points } = generateWalk(baseParams);
@@ -16,7 +16,7 @@ describe("generateWalk", () => {
 
   it("each step has the correct distance", () => {
     const stepLength = 5;
-    const { points } = generateWalk({ seed: 1, steps: 50, stepLength });
+    const { points } = generateWalk({ seed: 1, steps: 50, stepLength, walkType: "isotropic" });
 
     for (let i = 1; i < points.length; i++) {
       const dx = points[i].x - points[i - 1].x;
@@ -33,7 +33,7 @@ describe("generateWalk", () => {
   });
 
   it("handles 0 steps", () => {
-    const { points } = generateWalk({ seed: 1, steps: 0, stepLength: 1 });
+    const { points } = generateWalk({ seed: 1, steps: 0, stepLength: 1, walkType: "isotropic" });
     expect(points).toHaveLength(1);
     expect(points[0]).toEqual({ x: 0, y: 0 });
   });

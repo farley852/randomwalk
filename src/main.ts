@@ -23,7 +23,7 @@ renderer.clear();
 
 const statusEl = document.getElementById("status-indicator")!;
 
-const defaultParams = { seed: 42, steps: 500, stepLength: 5 };
+const defaultParams = { seed: 42, steps: 500, stepLength: 5, walkType: "isotropic" as const };
 const initialParams = { ...defaultParams, ...readParamsFromURL() };
 let walk: WalkState = generateWalk(initialParams);
 const playback: PlaybackState = { currentStep: 0, playing: false, drawSpeed: 5 };

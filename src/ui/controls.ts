@@ -48,6 +48,7 @@ export function initControls(callbacks: UICallbacks) {
       seed: Number(seedSlider.value),
       steps: Number(stepsSlider.value),
       stepLength: Number(stepLengthSlider.value),
+      walkType: "isotropic",
     };
   }
 

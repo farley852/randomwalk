@@ -1,6 +1,6 @@
 import type { WalkParams } from "../simulation/types";
 
-const DEFAULTS: WalkParams = { seed: 42, steps: 500, stepLength: 5 };
+const DEFAULTS: WalkParams = { seed: 42, steps: 500, stepLength: 5, walkType: "isotropic" };
 
 const RANGES = {
   seed: { min: 1, max: 9999 },

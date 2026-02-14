@@ -3,10 +3,14 @@ export interface Point {
   y: number;
 }
 
+export type WalkType = 'isotropic' | 'lattice' | 'levy' | 'self-avoiding';
+
 export interface WalkParams {
   seed: number;
   steps: number;
   stepLength: number;
+  walkType: WalkType;
+  levyAlpha?: number;
 }
 
 export interface WalkState {

@@ -4,7 +4,7 @@ import type { WalkState } from "./types";
 
 function makeWalk(points: { x: number; y: number }[]): WalkState {
   return {
-    params: { seed: 1, steps: points.length - 1, stepLength: 1 },
+    params: { seed: 1, steps: points.length - 1, stepLength: 1, walkType: "isotropic" },
     points,
   };
 }

@@ -46,12 +46,12 @@ describe("writeParamsToURL", () => {
   });
 
   it("omits default values from URL", () => {
-    writeParamsToURL({ seed: 42, steps: 500, stepLength: 5 });
+    writeParamsToURL({ seed: 42, steps: 500, stepLength: 5, walkType: "isotropic" });
     expect(window.location.search).toBe("");
   });
 
   it("writes non-default values to URL", () => {
-    writeParamsToURL({ seed: 100, steps: 1000, stepLength: 10 });
+    writeParamsToURL({ seed: 100, steps: 1000, stepLength: 10, walkType: "isotropic" });
     const sp = new URLSearchParams(window.location.search);
     expect(sp.get("seed")).toBe("100");
     expect(sp.get("steps")).toBe("1000");
@@ -59,7 +59,7 @@ describe("writeParamsToURL", () => {
   });
 
   it("only writes changed values", () => {
-    writeParamsToURL({ seed: 42, steps: 1000, stepLength: 5 });
+    writeParamsToURL({ seed: 42, steps: 1000, stepLength: 5, walkType: "isotropic" });
     const sp = new URLSearchParams(window.location.search);
     expect(sp.has("seed")).toBe(false);
     expect(sp.get("steps")).toBe("1000");
