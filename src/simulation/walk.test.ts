@@ -105,3 +105,25 @@ describe("generateWalk — levy", () => {
     expect(walk1.points).toEqual(walk2.points);
   });
 });
+
+describe("generateWalk — self-avoiding", () => {
+  const baseParams = { seed: 42, steps: 100, stepLength: 5, walkType: "self-avoiding" as const };
+
+  it("all points are unique (no revisits)", () => {
+    const { points } = generateWalk(baseParams);
+    const keys = points.map((p) => `${p.x},${p.y}`);
+    const uniqueKeys = new Set(keys);
+    expect(uniqueKeys.size).toBe(points.length);
+  });
+
+  it("params.steps matches actual steps on early termination", () => {
+    const walk = generateWalk(baseParams);
+    expect(walk.params.steps).toBe(walk.points.length - 1);
+  });
+
+  it("is reproducible with the same seed", () => {
+    const walk1 = generateWalk(baseParams);
+    const walk2 = generateWalk(baseParams);
+    expect(walk1.points).toEqual(walk2.points);
+  });
+});
