@@ -11,10 +11,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Build & Dev Commands
 
 ```bash
-npm run dev       # Start Vite dev server (http://localhost:5173)
-npm run build     # Type-check + production build
-npm run preview   # Preview production build
-npx tsc --noEmit  # Type-check only
+npm run dev        # Start Vite dev server (http://localhost:5173)
+npm run build      # Type-check + production build
+npm run preview    # Preview production build
+npx tsc --noEmit   # Type-check only
+npm test           # Run tests (Vitest)
+npm run test:watch # Run tests in watch mode
 ```
 
 ## Architecture

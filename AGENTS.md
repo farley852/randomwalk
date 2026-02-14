@@ -28,7 +28,7 @@
 | Build | `npm run build`（tsc + vite build） |
 | Type check | `npx tsc --noEmit` |
 
-- テストフレームワーク: 未導入（将来導入時にここを更新）
+- テストフレームワーク: Vitest (`npm test`)
 - Lint / Format: 未導入
 
 ## 承認が必要な操作
