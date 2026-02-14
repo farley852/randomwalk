@@ -8,6 +8,19 @@ export function stepColor(index: number, total: number): string {
   return `hsl(${hue}, 80%, 55%)`;
 }
 
+const WALK_HUES = [210, 0, 120, 280, 40, 180, 330, 90, 240, 20];
+
+/**
+ * Color for multi-walk mode. Each walk gets a distinct hue,
+ * with lightness progressing from dark to light along the walk.
+ */
+export function multiWalkStepColor(walkIndex: number, stepIndex: number, totalSteps: number): string {
+  const hue = WALK_HUES[walkIndex % WALK_HUES.length];
+  const t = totalSteps <= 1 ? 0.5 : stepIndex / (totalSteps - 1);
+  const lightness = 35 + t * 35;
+  return `hsl(${hue}, 75%, ${lightness}%)`;
+}
+
 /**
  * Map a normalized intensity (0–1, after log scale) to a blue→yellow→red gradient.
  * Returns [r, g, b, a] in 0–255 range.

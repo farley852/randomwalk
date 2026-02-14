@@ -4,7 +4,7 @@ import { computeHeatmapGrid, extendHeatmapGrid, type HeatmapGrid } from "./simul
 import { WalkRenderer } from "./rendering/renderer";
 import { initControls } from "./ui/controls";
 import { exportGif } from "./ui/export";
-import { readParamsFromURL, writeParamsToURL } from "./ui/urlParams";
+import { readParamsFromURL, readWalkCountFromURL, writeParamsToURL } from "./ui/urlParams";
 import { initKeyboard } from "./ui/keyboard";
 import { StatsAccumulator } from "./simulation/stats";
 import { initStatsPanel } from "./ui/statsPanel";
@@ -25,7 +25,15 @@ const statusEl = document.getElementById("status-indicator")!;
 
 const defaultParams = { seed: 42, steps: 500, stepLength: 5, walkType: "isotropic" as const };
 const initialParams = { ...defaultParams, ...readParamsFromURL() };
-let walk: WalkState = generateWalk(initialParams);
+let walkCount = readWalkCountFromURL() ?? 1;
+
+function generateWalks(params: typeof initialParams, count: number): WalkState[] {
+  return Array.from({ length: count }, (_, i) =>
+    generateWalk({ ...params, seed: params.seed + i }),
+  );
+}
+
+let walks: WalkState[] = generateWalks(initialParams, walkCount);
 const playback: PlaybackState = { currentStep: 0, playing: false, drawSpeed: 5 };
 let animFrameId = 0;
 
@@ -42,7 +50,7 @@ const statsAccumulator = new StatsAccumulator();
 const statsPanel = initStatsPanel();
 
 function getCellSize(): number {
-  return walk.params.stepLength * 2;
+  return walks[0].params.stepLength * 2;
 }
 
 function resetHeatmapCache(): void {
@@ -50,10 +58,18 @@ function resetHeatmapCache(): void {
   heatmapLastStep = 0;
 }
 
+function getMaxSteps(): number {
+  return Math.max(...walks.map((w) => w.params.steps));
+}
+
 function redrawCurrent(): void {
   if (playback.currentStep > 0) {
     updateHeatmapForStep(playback.currentStep);
-    renderer.drawUpToStep(walk, playback.currentStep, renderOptions, heatmapGrid ?? undefined);
+    if (walks.length === 1) {
+      renderer.drawUpToStep(walks[0], playback.currentStep, renderOptions, heatmapGrid ?? undefined);
+    } else {
+      renderer.drawMultipleUpToStep(walks, playback.currentStep, renderOptions, heatmapGrid ?? undefined);
+    }
   } else {
     renderer.clear();
   }
@@ -62,13 +78,14 @@ function redrawCurrent(): void {
 function updateHeatmapForStep(step: number): void {
   if (!renderOptions.heatmap.enabled) return;
 
+  // For multi-walk, use primary walk for heatmap
+  const primaryWalk = walks[0];
+
   if (!heatmapGrid || step < heatmapLastStep) {
-    // Compute from scratch
-    heatmapGrid = computeHeatmapGrid(walk, getCellSize(), step);
+    heatmapGrid = computeHeatmapGrid(primaryWalk, getCellSize(), step);
     heatmapLastStep = step;
   } else if (step > heatmapLastStep) {
-    // Incremental update
-    heatmapGrid = extendHeatmapGrid(heatmapGrid, walk, heatmapLastStep, step, getCellSize());
+    heatmapGrid = extendHeatmapGrid(heatmapGrid, primaryWalk, heatmapLastStep, step, getCellSize());
     heatmapLastStep = step;
   }
 }
@@ -81,8 +98,8 @@ function handlePlay() {
     ui.setPlayLabel("Play");
     return;
   }
-  // If finished, restart
-  if (playback.currentStep >= walk.params.steps) {
+  const maxSteps = getMaxSteps();
+  if (playback.currentStep >= maxSteps) {
     playback.currentStep = 0;
     resetHeatmapCache();
     statsAccumulator.reset();
@@ -109,7 +126,7 @@ async function handleExport() {
   ui.setExportEnabled(false);
   statusEl.textContent = "Exporting GIF…";
   try {
-    await exportGif(walk, renderer, CANVAS_SIZE, renderOptions);
+    await exportGif(walks, renderer, CANVAS_SIZE, renderOptions);
     statusEl.textContent = "GIF saved!";
   } catch (e) {
     console.error("GIF export failed:", e);
@@ -123,7 +140,7 @@ async function handleExport() {
 const ui = initControls({
   onParamsChange(params) {
     stopAnimation();
-    walk = generateWalk(params);
+    walks = generateWalks(params, walkCount);
     playback.currentStep = 0;
     resetHeatmapCache();
     statsAccumulator.reset();
@@ -131,7 +148,7 @@ const ui = initControls({
     statusEl.textContent = "";
     ui.setPlayLabel("Play");
     statsPanel.clear();
-    writeParamsToURL(params);
+    writeParamsToURL(params, walkCount);
 
     // Auto-enable grid for lattice walk
     if (params.walkType === "lattice" && !renderOptions.grid.enabled) {
@@ -178,6 +195,21 @@ const ui = initControls({
     renderOptions.grid.showAxes = enabled;
     redrawCurrent();
   },
+
+  onWalkCountChange(count) {
+    stopAnimation();
+    walkCount = count;
+    const params = ui.getParams();
+    walks = generateWalks(params, walkCount);
+    playback.currentStep = 0;
+    resetHeatmapCache();
+    statsAccumulator.reset();
+    renderer.clear();
+    statusEl.textContent = "";
+    ui.setPlayLabel("Play");
+    statsPanel.clear();
+    writeParamsToURL(params, walkCount);
+  },
 });
 
 function stopAnimation() {
@@ -191,14 +223,19 @@ function stopAnimation() {
 function runAnimation() {
   if (!playback.playing) return;
 
+  const maxSteps = getMaxSteps();
   const stepsThisFrame = playback.drawSpeed;
-  playback.currentStep = Math.min(playback.currentStep + stepsThisFrame, walk.params.steps);
+  playback.currentStep = Math.min(playback.currentStep + stepsThisFrame, maxSteps);
 
   updateHeatmapForStep(playback.currentStep);
-  renderer.drawUpToStep(walk, playback.currentStep, renderOptions, heatmapGrid ?? undefined);
-  statsPanel.update(statsAccumulator.compute(walk, playback.currentStep));
+  if (walks.length === 1) {
+    renderer.drawUpToStep(walks[0], playback.currentStep, renderOptions, heatmapGrid ?? undefined);
+  } else {
+    renderer.drawMultipleUpToStep(walks, playback.currentStep, renderOptions, heatmapGrid ?? undefined);
+  }
+  statsPanel.update(statsAccumulator.compute(walks[0], Math.min(playback.currentStep, walks[0].params.steps)));
 
-  if (playback.currentStep >= walk.params.steps) {
+  if (playback.currentStep >= maxSteps) {
     playback.playing = false;
     statusEl.textContent = "Done";
     ui.setPlayLabel("Play");
@@ -230,6 +267,9 @@ window.addEventListener("resize", handleResize);
 
 // Sync sliders with URL-restored params
 ui.setParams(initialParams);
+if (walkCount > 1) {
+  ui.setWalkCount(walkCount);
+}
 
 // Keyboard shortcuts
 initKeyboard({

@@ -7,35 +7,45 @@ import type { WalkRenderer } from "../rendering/renderer";
 /**
  * Export the full walk animation as a GIF.
  * Re-renders every Nth frame to keep file size reasonable.
+ * Supports single walk or multiple walks.
  */
 export async function exportGif(
-  walk: WalkState,
+  walks: WalkState[],
   renderer: WalkRenderer,
   canvasSize: number,
   options?: RenderOptions,
 ): Promise<void> {
-  const totalSteps = walk.params.steps;
+  const primaryWalk = walks[0];
+  const totalSteps = primaryWalk.params.steps;
   // Aim for ~100 frames max to keep GIF size manageable
   const frameSkip = Math.max(1, Math.floor(totalSteps / 100));
   const delay = 50; // ms per frame
-  const cellSize = walk.params.stepLength * 2;
+  const cellSize = primaryWalk.params.stepLength * 2;
 
   const frames: { data: ImageData; delay: number }[] = [];
 
   for (let step = 0; step <= totalSteps; step += frameSkip) {
     const heatmapGrid = options?.heatmap.enabled
-      ? computeHeatmapGrid(walk, cellSize, step)
+      ? computeHeatmapGrid(primaryWalk, cellSize, step)
       : undefined;
-    renderer.drawUpToStep(walk, step, options, heatmapGrid);
+    if (walks.length === 1) {
+      renderer.drawUpToStep(primaryWalk, step, options, heatmapGrid);
+    } else {
+      renderer.drawMultipleUpToStep(walks, step, options, heatmapGrid);
+    }
     frames.push({ data: renderer.getImageData(), delay });
   }
 
   // Always include the final frame
   if (totalSteps % frameSkip !== 0) {
     const heatmapGrid = options?.heatmap.enabled
-      ? computeHeatmapGrid(walk, cellSize, totalSteps)
+      ? computeHeatmapGrid(primaryWalk, cellSize, totalSteps)
       : undefined;
-    renderer.drawUpToStep(walk, totalSteps, options, heatmapGrid);
+    if (walks.length === 1) {
+      renderer.drawUpToStep(primaryWalk, totalSteps, options, heatmapGrid);
+    } else {
+      renderer.drawMultipleUpToStep(walks, totalSteps, options, heatmapGrid);
+    }
     frames.push({ data: renderer.getImageData(), delay: delay * 4 });
   } else {
     // Extend last frame duration
@@ -56,7 +66,7 @@ export async function exportGif(
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  a.download = `randomwalk-seed${walk.params.seed}.gif`;
+  a.download = `randomwalk-seed${primaryWalk.params.seed}.gif`;
   a.click();
   URL.revokeObjectURL(url);
 }

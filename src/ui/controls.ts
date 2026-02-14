@@ -12,6 +12,7 @@ export interface UICallbacks {
   onTrailLengthChange: (length: number) => void;
   onGridToggle: (enabled: boolean) => void;
   onAxesToggle: (enabled: boolean) => void;
+  onWalkCountChange: (count: number) => void;
 }
 
 function el<T extends HTMLElement>(id: string): T {
@@ -28,11 +29,14 @@ export function initControls(callbacks: UICallbacks) {
   const walkTypeSelect = el<HTMLSelectElement>("walktype-select");
   const levyAlphaSlider = el<HTMLInputElement>("levyalpha-slider");
 
+  const walkCountSlider = el<HTMLInputElement>("walkcount-slider");
+
   const seedValue = el<HTMLSpanElement>("seed-value");
   const stepsValue = el<HTMLSpanElement>("steps-value");
   const stepLengthValue = el<HTMLSpanElement>("steplength-value");
   const speedValue = el<HTMLSpanElement>("speed-value");
   const levyAlphaValue = el<HTMLSpanElement>("levyalpha-value");
+  const walkCountValue = el<HTMLSpanElement>("walkcount-value");
 
   const levyOnlyGroup = document.querySelector(".levy-only") as HTMLElement;
 
@@ -95,6 +99,11 @@ export function initControls(callbacks: UICallbacks) {
     callbacks.onParamsChange(getParams());
   });
 
+  walkCountSlider.addEventListener("input", () => {
+    walkCountValue.textContent = walkCountSlider.value;
+    callbacks.onWalkCountChange(Number(walkCountSlider.value));
+  });
+
   speedSlider.addEventListener("input", () => {
     speedValue.textContent = speedSlider.value;
     callbacks.onSpeedChange(Number(speedSlider.value));
@@ -155,6 +164,11 @@ export function initControls(callbacks: UICallbacks) {
     getSpeed: () => Number(speedSlider.value),
     getTrailFadeEnabled: () => trailFadeToggle.checked,
     getTrailLength: () => Number(trailLengthSlider.value),
+    getWalkCount: () => Number(walkCountSlider.value),
+    setWalkCount(count: number) {
+      walkCountSlider.value = String(count);
+      walkCountValue.textContent = String(count);
+    },
     getGridEnabled: () => gridToggle.checked,
     getAxesEnabled: () => axesToggle.checked,
     setGridEnabled(enabled: boolean) {

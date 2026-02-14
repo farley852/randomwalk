@@ -63,7 +63,19 @@ export function readParamsFromURL(): Partial<WalkParams> {
   return result;
 }
 
-export function writeParamsToURL(params: WalkParams): void {
+export function readWalkCountFromURL(): number | undefined {
+  const sp = new URLSearchParams(window.location.search);
+  const val = sp.get("walkCount");
+  if (val !== null) {
+    const n = Number(val);
+    if (Number.isFinite(n)) {
+      return clamp(Math.round(n), 1, 10);
+    }
+  }
+  return undefined;
+}
+
+export function writeParamsToURL(params: WalkParams, walkCount = 1): void {
   const sp = new URLSearchParams();
 
   if (params.seed !== DEFAULTS.seed) sp.set("seed", String(params.seed));
@@ -72,6 +84,7 @@ export function writeParamsToURL(params: WalkParams): void {
   if (params.walkType !== DEFAULTS.walkType) sp.set("walkType", params.walkType);
   if (params.levyAlpha !== undefined && params.levyAlpha !== 1.5)
     sp.set("levyAlpha", String(params.levyAlpha));
+  if (walkCount > 1) sp.set("walkCount", String(walkCount));
 
   const qs = sp.toString();
   const url = qs ? `${window.location.pathname}?${qs}` : window.location.pathname;
